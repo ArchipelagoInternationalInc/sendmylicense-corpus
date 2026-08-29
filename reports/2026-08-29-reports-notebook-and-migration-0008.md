@@ -104,13 +104,21 @@ Remove or describe-without-naming each item, then end the session again.
 
 The dirty and clean fixtures were deleted after the proof.
 
-## Approved public copy — live
+## Approved public copy — committed, NOT YET LIVE
 
 The closing CTA band claimed "Three credentials" as the free tier. That stopped
 being true when the beta was uncapped, so the page was advertising a limit the
 product no longer enforces.
 
-Now live in the built page:
+**Fetched from production at the end of this session: the apex still serves the
+old sentence.** The replacement is committed and proven in a local production
+build, but it sits on a review branch, and production builds from the default
+branch. It goes live when that branch is merged — which is a decision on the
+owner's list, not one taken here, because the same branch carries the gated
+migration work. This is stated plainly rather than reported as done: the brief
+asked for the live sentence, and the live sentence is still the old one.
+
+The approved replacement, verified rendering in the built page:
 
 > Free during the beta. Store as many credentials as you carry, with the full
 > dashboard and reminders. No card required.
