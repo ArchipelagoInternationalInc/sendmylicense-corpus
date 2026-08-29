@@ -104,6 +104,55 @@ Remove or describe-without-naming each item, then end the session again.
 
 The dirty and clean fixtures were deleted after the proof.
 
+## Identity guard — added on PM addendum, and proven to refuse
+
+Ratified from the PM: the finding that the repo-local signing identity does not
+survive a fresh clone is now a rule with a mechanism.
+
+**What it does.** `.githooks/pre-commit` refuses any commit whose author is not
+the studio address, printing one line naming the exact command to run. It reads
+the author git will actually record, not just the local setting, so it catches
+an **inherited global identity** as well as an explicitly wrong local one — and
+the inherited case is the one that actually happens on a new machine.
+
+**The clone gap needed closing twice, not once.** The hook directory is
+repository content and travels with a clone, but the git setting that points at
+it is local config and does not — so a fresh checkout would carry the hook on
+disk with git ignoring it, which is the same failure in a new costume. A
+session-start hook now points git at the tracked hook directory on every
+session, and warns if the identity is already wrong. Verified by unsetting the
+pointer and watching the session hook put it back.
+
+**Proof it refuses.** Three real commit attempts, not simulations.
+
+*Under a personal address:*
+
+```
+COMMIT REFUSED: author email is "<personal address>", but this repo only accepts
+commits from the studio address -- run: git config user.email "<studio address>"
+
+Why: Vercel silently marks deployments BLOCKED when the commit author is not on
+the owning team. The push looks fine and the site keeps serving the old build.
+
+This setting does not survive a fresh clone -- it lives in .git/config, which is
+not part of the repository -- so it has to be set again on every new machine or
+container.
+```
+
+Exit code 1. **HEAD unchanged, and the staged changes were still staged** — the
+refusal costs nothing but a corrected setting.
+
+*With the local setting removed entirely, so the global identity is inherited —
+the actual fresh-clone case:* refused identically, exit code 1, with the
+inherited address named back to the operator.
+
+*With the studio address restored:* exit code 0. That commit is the one carrying
+this guard.
+
+**Stated rather than hidden:** `git commit --author=…` sets the author after the
+hook runs, so the flag is not caught. The failure this exists to stop is a
+misconfigured clone, which it does catch. There is a documented owner override.
+
 ## Approved public copy — committed, NOT YET LIVE
 
 The closing CTA band claimed "Three credentials" as the free tier. That stopped
