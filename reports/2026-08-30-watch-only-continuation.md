@@ -59,7 +59,35 @@ Two ways to read that, and it is the owner's call which is right:
    the friction, at the cost of a carve-out that has to be understood by
    everyone who later reads the gate.
 
-No change was made. The gate behaves today exactly as it did yesterday.
+**Owner ruled: option 2** — the report may be dated from when the session was
+begun. Implemented the same day.
+
+The start date is recorded rather than inferred, because the stop gate has no
+way to know when a session began: the session-start hook now stamps the date,
+keyed by session, and the stop gate reads that stamp. First write wins, so a
+resumed session keeps the date it actually started on.
+
+Two bounds keep the carve-out from becoming a hole. The stamp has to parse as a
+real date, and it has to fall within three days of today — so a long-lived
+session cannot coast indefinitely on one old report. Every path that cannot
+resolve a start date falls back to today-only. **The gate fails strict, never
+open**, which is the only safe direction for a guard to fail in.
+
+Proven in six cases, with the day's report removed for the first five:
+
+| Marker state | Outcome |
+|---|---|
+| Session began yesterday | **Allowed** — the carve-out working |
+| No marker at all | Refused |
+| Start date older than the cap | Refused |
+| Marker contents unparseable | Refused |
+| Start date in the future | Refused |
+| Today's report restored | Allowed |
+
+The session identifier becomes a filename, so it is stripped to safe characters
+before use; a marker path cannot be made to traverse. Date arithmetic is done in
+Python rather than with the GNU-only `date -d`, which would behave differently on
+the studio's own machine.
 
 ## Deliberately not done
 
