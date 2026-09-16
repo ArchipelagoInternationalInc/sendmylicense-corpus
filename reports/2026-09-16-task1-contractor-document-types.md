@@ -151,9 +151,51 @@ no longer the one that was verified.
 ## Pending the owner
 
 Every user-facing string written this session is **[PENDING — owner]** and has
-reached no user: thirteen type labels, three picker group headings, three field
-strings, two validation messages. The full block is in the pull request and is
-repeated here for approval as one block.
+reached no user. Twenty-one strings, as one block, for approval:
+
+**Document type labels (13)**
+
+```
+Certificate of Insurance
+Additional Insured Endorsement
+Contractor License
+Bonding Capacity Letter
+EMR Letter
+Safety Program
+OSHA Training Card
+W-9
+Business License
+Trade Certification
+Manufacturer Certification
+Reference Letter
+Capability Statement
+```
+
+**Picker group headings (3)**
+
+```
+Licenses, insurance and trade documents
+Clinical credentials
+Anything else
+```
+
+**Form field strings (3)**
+
+```
+Issuing body
+Optional. Who issued it — LPI, NICET, UL, AWS, EPA 608.
+This document usually carries one. Every status on the dashboard comes from the date you enter and nothing else.
+```
+
+**Validation messages (2)**
+
+```
+That issuing body is too long — keep it under 120 characters.
+An issuing body can only be set on a Trade Certification.
+```
+
+Each is pinned by a test, so one of them being reworded between now and approval
+would fail a build rather than quietly make the approval meaningless.
 
 One open question: **a manufacturer certification has nowhere to record the
 manufacturer.** The brief scopes the issuing-body field to trade certifications
