@@ -147,9 +147,19 @@ No live migration. No deployment. No verified artifact altered. No price
 anywhere. The letter is not in the sending email — that is Task 9, and adding it
 here would have been the easy scope creep this run exists to avoid.
 
-**The sender's logo is still not uploadable.** Unchanged from Task 4 and repeated
-rather than allowed to go quiet: the column and the page's handling of it are in
-place; the storage policy and the upload route are not.
+**Correction, and it applies to the Task 4 report as well as this one.** Both
+said the sender's logo was half-built — the column and the page's handling
+present, only the upload missing. That was wrong. The column exists; the page
+handling never did. The key was read out of the database, typed onto the object
+handed to the receiving page, and then ignored — a storage key carried toward a
+stranger's screen to do nothing, in the one module whose header promises it
+returns exactly what the page renders and nothing else. It no longer crosses
+that boundary. The column stays, because migrations in this run are additive.
+
+**The logo is also not an authorised feature.** It appears nowhere in the ten
+tasks; the column arrived with Task 4 on the executor's own initiative, which was
+the scope rule being bent rather than followed. Nothing further is built on it
+without a ruling.
 
 **Task 6 needs a decision before it can start.** The brief says the answer bank
 stores an EIN and insurance policy numbers "never in plain text in the database;
@@ -157,3 +167,18 @@ last four visible". Nothing in this system encrypts a column today — documents
 are private objects behind short-lived signed URLs, which is a different
 mechanism that does not transfer to a text field. That is a stop-and-ask, not a
 choice to make at three in the morning.
+
+## A gap in the record, found after this task was filed
+
+**The owner's brief for Tasks 6–10 exists only in a conversation that has since
+been compacted, and is not written down in either repository.** Tasks 1–5 were
+built while the text was still in front of the executor. What survives for Task 6
+is a paraphrase.
+
+That is enough to know Task 6 is blocked and why. It is not enough to build from:
+the fields, the screens and the bounds of an "answer bank" would all be invented,
+and inventing scope is the failure the scope rule exists to prevent. **The task
+text should be re-supplied before Task 6 starts**, and the remaining tasks'
+text with it.
+
+Recorded here rather than left to be discovered by whoever picks this up next.
