@@ -158,19 +158,23 @@ The browser driver used for the walk-through was installed for the run and
 deliberately left out of the dependency manifest, matching this project's
 existing convention of keeping the visual harness in the session scratchpad.
 
-## The walk-through environment
+## The walk-through environment — deleted, and what it cost
 
-It is **still running**, deliberately. The gate instruction was to delete it once
-the walk-through was done; while the walk-through was still blocked that deletion
-was put back to the owner, and the ruling was to keep it alive — a ruling given
-**before** the run succeeded. It has not been revisited, so the environment is
-left up and the word to delete it is the owner's to give.
+It is **deleted**. The gate instruction was to remove it once the walk-through
+was done; while the run was still blocked that deletion had been put back to the
+owner and the ruling was to keep it alive, so once the run succeeded the question
+was put once more — deletion being irreversible — and the answer was to delete
+it.
 
-Its cost, computed from its own uptime against the published hourly rate, because
-no tool available in a session here reads the billing ledger: created the
-previous evening, about **9 hours** old at the time of writing, at **$0.01344 per
-hour** — roughly **thirteen cents so far**, and about **thirty-two cents a day**
-while it stays up.
+- Created the previous evening; **9.12 hours** alive.
+- Published rate for a preview environment: **$0.01344 per hour**.
+- **Cost: roughly twelve cents.**
 
-It now also holds the walk-through's disposable data: two throwaway accounts and
-their rows. None of it is real and none of it came from the live project.
+That is elapsed-time arithmetic against the published rate. **No tool available
+in a session here reads the billing ledger**, so it is not an invoice figure and
+is not offered as one.
+
+Confirmed after deletion: the parent lists one environment, the live one, **which
+was not touched and was never read from**. Deleting took the walk-through's
+disposable data with it — two throwaway accounts and their rows. None of it was
+real.
