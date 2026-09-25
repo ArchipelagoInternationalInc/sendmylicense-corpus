@@ -1,0 +1,290 @@
+STEELTICKET — EVERY EMAIL THE APP SENDS, VERBATIM
+Printed 2026-09-25 from the contractor branch by scripts/review-pack.ts.
+
+Each email is printed from the real template code with example values.
+Example values used: sender 'Example Framing Co.' / 'Site Office', packet
+'Prequalification packet', recipient estimating@example.com, and links under
+steelticket.example. Real links carry a random token.
+
+Each email has two parts: plain text and HTML. Both are printed. The HTML part
+is shown with its markup removed; links are shown as [link: …].
+
+==============================================================================
+1. Reminder about a date the user entered
+==============================================================================
+When: Sent by the daily reminder job to the account holder (and to a helper who opted in to reminder copies).
+From: The app's transactional sender (the From line is set outside the code; see the end of this file).
+Source: lib/email/emailTemplates.ts (reminderEmail); called from lib/reminders/job.ts
+
+SUBJECT: Reminder: State contractor license — 30 days until the date you entered
+
+PLAIN-TEXT PART:
+------------------------------------------------------------------------------
+This is a reminder you set up in Steelticket. For "State contractor license", the expiration date you entered is October 31, 2026 — 30 days from today.
+
+You can review this credential and everything else in your vault on your dashboard.
+Dashboard: https://steelticket.example/dashboard
+Manage reminders: https://steelticket.example/credentials/example-id
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+------------------------------------------------------------------------------
+
+HTML PART (markup removed):
+------------------------------------------------------------------------------
+Steelticket
+
+This is a reminder you set up in Steelticket. For "State contractor license", the expiration date you entered is October 31, 2026 — 30 days from today.
+
+You can review this credential and everything else in your vault on your dashboard.
+
+Open your dashboard [link: https://steelticket.example/dashboard]
+
+You chose these reminder settings. Manage reminders [link: https://steelticket.example/credentials/example-id].
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+------------------------------------------------------------------------------
+
+==============================================================================
+2. A packet sent to a general contractor — send to your book (scheduled)
+==============================================================================
+When: Sent by the hourly send job to each recipient the user scheduled. The line at the bottom is added to every packet email.
+From: As above.
+Source: lib/email/emailTemplates.ts (deliveryEmail) + lib/email/senderLine.ts (withSenderLine); built in lib/deliveries/supabaseDeps.ts (buildDeliveryEmail)
+Note: The cover letter the user wrote is not in the email. It is the first page of the packet the recipient downloads.
+
+SUBJECT: Example Framing Co. has sent you a credential package: Prequalification packet
+
+PLAIN-TEXT PART:
+------------------------------------------------------------------------------
+Example Framing Co. has sent you a credential package via Steelticket, at their request.
+
+Download it with the secure link below. For everyone's protection, the link expires on October 2, 2026.
+
+Download: https://steelticket.example/p/EXAMPLE-LINK-TOKEN
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+
+—
+Sent with Steelticket — the qualification packet tool built for subcontractors. Every document is current as of the date shown.
+------------------------------------------------------------------------------
+
+HTML PART (markup removed):
+------------------------------------------------------------------------------
+Steelticket
+
+Example Framing Co. has sent you a credential package via Steelticket, at their request.
+
+Download it with the secure link below. For everyone's protection, the link expires on October 2, 2026.
+
+Download the package [link: https://steelticket.example/p/EXAMPLE-LINK-TOKEN]
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+
+Sent with Steelticket — the qualification packet tool built for subcontractors. Every document is current as of the date shown.
+------------------------------------------------------------------------------
+
+==============================================================================
+3. A packet sent to one address at a time — the single send
+==============================================================================
+When: Sent immediately when the user sends a package from the package page. The optional note is the user's own words.
+From: As above.
+Source: lib/email/emailTemplates.ts (deliveryEmail) + lib/email/senderLine.ts; built in app/api/packages/[id]/send/route.ts
+
+SUBJECT: Site Office has sent you a credential package: Prequalification packet
+
+PLAIN-TEXT PART:
+------------------------------------------------------------------------------
+Site Office has sent you a credential package via Steelticket, at their request.
+
+Message from Site Office: "Example note written by the user."
+
+Download it with the secure link below. For everyone's protection, the link expires on October 2, 2026.
+
+Download: https://steelticket.example/storage-signed-link-EXAMPLE
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+
+—
+Sent with Steelticket — the qualification packet tool built for subcontractors. Every document is current as of the date shown.
+------------------------------------------------------------------------------
+
+HTML PART (markup removed):
+------------------------------------------------------------------------------
+Steelticket
+
+Site Office has sent you a credential package via Steelticket, at their request.
+
+Message from Site Office: "Example note written by the user."
+
+Download it with the secure link below. For everyone's protection, the link expires on October 2, 2026.
+
+Download the package [link: https://steelticket.example/storage-signed-link-EXAMPLE]
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+
+Sent with Steelticket — the qualification packet tool built for subcontractors. Every document is current as of the date shown.
+------------------------------------------------------------------------------
+
+==============================================================================
+4. 'Not opened yet' — to the sender
+==============================================================================
+When: Sent once by the hourly send job to the SENDER (never the recipient) when a sent packet's link has not been opened within 7 days.
+From: As above.
+Source: lib/email/nudgeTemplate.ts (unopenedNudgeEmail); built in lib/deliveries/supabaseDeps.ts (buildNudgeEmail)
+
+SUBJECT: Not opened yet: Prequalification packet
+
+PLAIN-TEXT PART:
+------------------------------------------------------------------------------
+The packet "Prequalification packet" you sent to estimating@example.com on September 25, 2026 has not been opened yet. That is all we can tell — the link has not been followed. It may have been received and filed, and it may not have arrived at all.
+
+You can see every send and its receipt in your delivery log.
+
+Delivery log: https://steelticket.example/deliveries
+
+
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+------------------------------------------------------------------------------
+
+HTML PART (markup removed):
+------------------------------------------------------------------------------
+The packet "Prequalification packet" you sent to estimating@example.com on September 25, 2026 has not been opened yet. That is all we can tell — the link has not been followed. It may have been received and filed, and it may not have arrived at all.
+
+You can see every send and its receipt in your delivery log.
+
+Open the delivery log [link: https://steelticket.example/deliveries]
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+------------------------------------------------------------------------------
+
+==============================================================================
+5. Invitation to a helper (representative)
+==============================================================================
+When: Sent when the account holder invites someone to help with their paperwork.
+From: As above.
+Source: lib/email/representativeInvite.ts (representativeInviteEmail); called from lib/representatives/actions.ts
+
+SUBJECT: Example Framing Co. has asked you to help with their paperwork
+
+PLAIN-TEXT PART:
+------------------------------------------------------------------------------
+Example Framing Co. uses Steelticket to store their licenses, insurance certificates and other paperwork, and to send them to general contractors. They have asked you to help.
+
+If you accept, you would be able to:
+
+• Put packets together
+
+• Send packets to contractors
+
+• Add and edit contractors in your book
+
+You would also receive their reminders about dates they have entered.
+
+Documents are separate. You would see a document only if they tick it for you, one at a time — accepting on its own shows you nothing.
+
+To accept, open the link below and sign in with this email address. If you do not have an account yet, create one with this address first.
+
+https://steelticket.example/representatives/accept/EXAMPLE-TOKEN
+
+If you were not expecting this, you can ignore this email. Nothing happens until you accept.
+
+
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+------------------------------------------------------------------------------
+
+HTML PART (markup removed):
+------------------------------------------------------------------------------
+Example Framing Co. uses Steelticket to store their licenses, insurance certificates and other paperwork, and to send them to general contractors. They have asked you to help.
+
+If you accept, you would be able to:
+
+Put packets together
+
+Send packets to contractors
+
+Add and edit contractors in your book
+
+You would also receive their reminders about dates they have entered.
+
+Documents are separate. You would see a document only if they tick it for you, one at a time — accepting on its own shows you nothing.
+
+To accept, open the link below and sign in with this email address. If you do not have an account yet, create one with this address first.
+
+Accept the invitation [link: https://steelticket.example/representatives/accept/EXAMPLE-TOKEN]
+
+If you were not expecting this, you can ignore this email. Nothing happens until you accept.
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+------------------------------------------------------------------------------
+
+==============================================================================
+6. Export ready
+==============================================================================
+When: DEFINED BUT NOT SENT: no code path in the repository calls this template.
+From: —
+Source: lib/email/emailTemplates.ts (exportReadyEmail)
+
+SUBJECT: Your Steelticket export is ready
+
+PLAIN-TEXT PART:
+------------------------------------------------------------------------------
+The export of your documents and information is ready. Download it with the link below — the link expires on October 2, 2026.
+
+Download: https://steelticket.example/export-EXAMPLE
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+------------------------------------------------------------------------------
+
+HTML PART (markup removed):
+------------------------------------------------------------------------------
+Steelticket
+
+The export of your documents and information is ready. Download it with the link below — the link expires on October 2, 2026.
+
+Download your export [link: https://steelticket.example/export-EXAMPLE]
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+------------------------------------------------------------------------------
+
+==============================================================================
+7. Account deleted
+==============================================================================
+When: DEFINED BUT NOT SENT: no code path in the repository calls this template.
+From: —
+Source: lib/email/emailTemplates.ts (deletionConfirmedEmail)
+
+SUBJECT: Your Steelticket account has been deleted
+
+PLAIN-TEXT PART:
+------------------------------------------------------------------------------
+Your account and your documents have been deleted from Steelticket, as you requested. Thank you for trusting us with them.
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+------------------------------------------------------------------------------
+
+HTML PART (markup removed):
+------------------------------------------------------------------------------
+Steelticket
+
+Your account and your documents have been deleted from Steelticket, as you requested. Thank you for trusting us with them.
+
+Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+------------------------------------------------------------------------------
+
+==============================================================================
+8. Sign-up confirmation and one-time sign-in link
+==============================================================================
+When: Sent by the authentication provider (Supabase Auth), not by this app's code.
+From: unknown
+Source: No template for these emails is in the repository.
+Note: Wording: unknown — the templates live in the authentication provider's settings, which this repository does not contain.
+
+==============================================================================
+THE FROM LINE
+==============================================================================
+The From line is the environment variable EMAIL_FROM, set outside the repository
+(lib/email/resend.ts). On 2026-09-25 a test message sent by this branch arrived
+from the display name "SendMyLicense" at a no-reply address on the old name's
+mail subdomain. Changing it needs a new verified sending domain (owner item).

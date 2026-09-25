@@ -1,0 +1,152 @@
+STEELTICKET — EVERY LEGAL PAGE, VERBATIM
+Printed 2026-09-25 from the contractor branch by scripts/review-pack.ts.
+
+The app has two legal pages. Each is rendered from the Markdown file named
+below, which is printed here exactly as it is in the repository.
+
+==============================================================================
+Terms of Service — page /terms — source legal/TERMS_DRAFT.md
+==============================================================================
+# Steelticket Terms of Service — DRAFT (pending attorney review; not yet published)
+
+*Plain-language draft for the closed beta. An attorney reviews and finalizes this before public launch. Entity, jurisdiction, and effective date inserted at publication.*
+
+## The short version
+
+Steelticket is a tool for storing your credential documents, tracking dates you enter, and sending packages you assemble. You own your documents and are responsible for your professional obligations. We run the service carefully, honestly, and without surprises. If it's not for you, export your data and go — no hostages.
+
+## 1. What Steelticket is — and is not
+
+Steelticket provides document storage, organization, user-configured reminders, and package preparation and delivery, for your convenience.
+
+Steelticket is **not** a compliance, credentialing, licensing, legal, or verification service. It does not verify credentials, interpret licensing or regulatory requirements, calculate continuing-education sufficiency, or confirm your eligibility to work. Status indicators reflect only dates you entered. **You remain solely responsible for all licensing, renewal, credentialing, legal, tax, and professional obligations.** Reminders are provided for convenience and are not guaranteed to be delivered or received; do not rely on them as your only system for tracking obligations.
+
+## 2. Your account
+
+You must be at least 18 and provide accurate account information. Keep your sign-in credentials secure; we strongly encourage enabling two-factor authentication. You're responsible for activity under your account. One person per account.
+
+## 3. Your content
+
+You own the documents and information you store. You give us only the limited permission needed to operate the service: storing your files, generating cover sheets and packages you request, and transmitting packages to recipients you designate. We claim no other rights, and we do not use your content for advertising or AI training.
+
+You're responsible for having the right to store and send what you upload, and for choosing recipients carefully — once a recipient downloads a package, its handling is outside Steelticket's control.
+
+## 4. Sending packages
+
+When you send a package, Steelticket emails your chosen recipient a secure link that expires after seven days. We record the send in your delivery log. Email delivery depends on systems we don't control (the recipient's mail provider, spam filtering, typos in addresses); we'll show you honest status information, but we cannot guarantee receipt. The download option always remains available to you as an alternative.
+
+## 5. Plans and billing
+
+The Free plan includes up to three credentials. Pro is billed monthly or annually through Stripe; prices are shown at checkout. You can cancel any time from your billing settings, effective at the end of the paid period. If you cancel or downgrade, your stored content remains exportable; Free-plan limits apply to active features. During beta, we may offer Pro features at no charge; we'll give clear notice before any beta pricing changes.
+
+## 6. Acceptable use
+
+Don't use Steelticket to store or send unlawful content, malware, or other people's documents without authority; don't attempt to access other users' data or probe the service's security (responsible disclosure is welcome at [security@DOMAIN]); don't resell or misrepresent the service. Don't upload patient health records — Steelticket is for your own professional credentials.
+
+## 7. Service changes and availability
+
+We aim for reliable service but don't promise uninterrupted availability. We may improve or change features with notice for material changes. If we ever discontinue Steelticket, we'll give at least 60 days' notice and keep export available through that period.
+
+## 8. Termination
+
+You can delete your account at any time from settings, which permanently removes your content per the Privacy Policy. We may suspend or terminate accounts that violate these terms, with notice where practicable, and export honored except where legally barred.
+
+## 9. Disclaimers
+
+The service is provided "as is" and "as available." To the fullest extent permitted by law, we disclaim warranties of merchantability, fitness for a particular purpose, and non-infringement. Without limiting Section 1: Steelticket makes no representation that use of the service satisfies any licensing, credentialing, employment, or regulatory requirement.
+
+## 10. Limitation of liability
+
+To the fullest extent permitted by law, Steelticket's total liability for any claim arising from the service is limited to the amount you paid us in the twelve months before the claim, and we are not liable for indirect, incidental, consequential, or special damages — including lost professional opportunities, lapsed licenses or credentials, or missed renewal deadlines. *(Attorney: confirm enforceability and required carve-outs by jurisdiction.)*
+
+## 11. Indemnity
+
+You'll defend and hold us harmless from third-party claims arising from your content or your breach of these terms. *(Attorney: scope appropriately for consumer context.)*
+
+## 12. Disputes
+
+Governing law: [STATE — attorney to confirm; presumptively North Carolina]. [Arbitration/venue clause — attorney decision, including class-waiver enforceability.]
+
+## 13. Changes to these terms
+
+We'll email account holders before material changes take effect. Continued use after the effective date is acceptance; if you don't accept, export and delete before that date.
+
+## Contact
+
+[LEGAL ENTITY NAME], [legal@DOMAIN].
+
+---
+
+*Attorney review checklist: entity + jurisdiction; Section 1 sufficiency as the core liability shield (mirror of product's non-verification posture); disclaimer/limitation enforceability by state; auto-renewal statute compliance (CA and others) for subscription terms; beta-terms notice; unauthorized-practice-of-law adjacency check on "not legal advice" framing; refund policy statement; DMCA agent if user content scope requires.*
+
+==============================================================================
+Privacy Policy — page /privacy — source legal/PRIVACY_POLICY_DRAFT.md
+==============================================================================
+# Steelticket Privacy Policy — DRAFT (pending attorney review; not yet published)
+
+*Plain-language draft for the closed beta. An attorney reviews and finalizes this before public launch. Effective date and legal entity details to be inserted at publication.*
+
+## The short version
+
+Steelticket stores the credential documents you upload and the information you enter, so you can organize them, get reminders, and send packages to people you choose. We don't sell your information, we don't show ads, we don't use your documents to train AI, and nobody sees a document unless you send it. You can export everything or delete your account whenever you want.
+
+## What we collect
+
+**Information you give us:** your name and email when you create an account; the credential details you enter (type, issuing state, identifier, dates, notes); the documents you upload; cover notes you write; recipient email addresses when you send a package.
+
+**Information created by using the service:** your delivery log (what you sent, to whom, when); reminder history; technical records of account activity such as sign-ins and document access, kept for security; basic subscription and payment status (payments themselves are processed by Stripe — we never see or store your card number).
+
+**If you sign up for our newsletter:** the email address you enter in the footer form, the fact that you ticked the consent box, and when you ticked it. This is separate from your account — you can subscribe without having one, and having an account does not subscribe you.
+
+**Information we deliberately do not collect:** we don't read or analyze the contents of your documents beyond checking that a file is a valid PDF or image; we don't collect patient information; we don't buy data about you from anyone.
+
+## How we use it
+
+To run the product you signed up for: storing your documents, showing your dashboard, sending the reminders you configured, building and delivering packages at your request, and providing support when you contact us. We also use security records to protect accounts and investigate problems, and aggregate, non-identifying usage statistics (like how many packages were sent this month across the service) to improve the product.
+
+If you asked for the newsletter, we use that address to send occasional updates about the product, and for nothing else. Every one of those emails carries an unsubscribe link, and unsubscribing removes you from the list; it does not affect your account.
+
+We do not use your information or documents for advertising, for sale to third parties, or to train artificial-intelligence models. Ever.
+
+## Who can see your documents
+
+Nobody, unless you act. Your documents are stored privately, encrypted, and tied to your account alone. When you send a package, the recipient you chose receives a secure link that expires after seven days. When you download something, it goes to your device. Our staff do not browse user documents; limited technical access exists only for security investigation, legal obligation, or support you've requested, and such access is logged.
+
+## Service providers we rely on
+
+Steelticket runs on established infrastructure providers who process data on our behalf under their own security commitments: cloud hosting and database services, encrypted file storage, an email delivery service (for reminders and packages you send), a separate newsletter provider (Brevo) that holds only the addresses of people who asked for updates and never receives your documents or credential details, a payment processor (Stripe), and error-monitoring tools that help us fix problems. These providers act on our instructions; a current list is available on request.
+
+## How long we keep things
+
+Your documents and information stay as long as your account is active. If you delete your account, your documents and records are deleted from our systems; residual copies in encrypted backups age out within [BACKUP_RETENTION_DAYS — confirm with infrastructure settings, target ≤30] days. Security and delivery audit records are retained up to 12 months. If you downgrade rather than delete, everything you've stored remains yours and exportable.
+
+## Your controls
+
+Export all of your documents and information at any time, self-service, from settings. Delete your account permanently, self-service, from settings. Change your reminder settings, notification email, and profile whenever you like. Email us at [privacy@DOMAIN] for anything you can't do self-service.
+
+## Security, honestly stated
+
+We designed Steelticket around private-by-default storage, encryption in transit and at rest, two-factor authentication, expiring access links, and access logging. No online service can promise perfect security, and we won't pretend otherwise — but if we ever confirm a breach affecting your data, we commit to notifying you within 72 hours of confirmation.
+
+## Children
+
+Steelticket is for licensed professionals and is not directed to anyone under 18.
+
+## Changes
+
+If this policy changes in a way that matters, we'll email account holders before the change takes effect and keep prior versions available.
+
+## Contact
+
+[LEGAL ENTITY NAME], [privacy@DOMAIN]. 
+
+---
+
+*Attorney review checklist: confirm entity name and address; confirm backup retention figure; state-law applicability (NC + user states); CCPA/CPRA and similar state-privacy applicability at current scale; international users stance; cookie/analytics disclosure sufficiency (Plausible, cookieless); Stripe/processor DPA references; breach-notification wording vs. statutory duties.*
+
+==============================================================================
+NOT A PAGE
+==============================================================================
+legal/INCIDENT_RUNBOOK.md is an internal procedure, not a page any user sees.
+It contains a notice template a person would send by hand after a security
+incident. It is not printed here.

@@ -1,0 +1,243 @@
+Steelticket — data fact sheet (facts from the code, 2026-09-25)
+Each fact names the file it comes from. 'unknown' means this repository does not establish it.
+
+Scope: the code on branch claude/contractor-qualification-packets, including migrations 0001–0023. Paths are relative to the repository root. The code does not show which database migrations have been applied to the live database. SESSION_HANDOFF.md says migrations 0010 onward exist only on this branch and are not applied to the live project [SESSION_HANDOFF.md (document, not code)]. Sentences quoted from code comments or documents are marked as such.
+
+
+1. WHAT THE APP STORES ABOUT A USER
+
+1. The "profiles" table has one row per account, with these columns: user_id, display_name, profession, notification_email, plan ('free' or 'pro'), stripe_customer_id, disclaimer_acknowledged_at, created_at, updated_at [supabase/migrations/0001_schema.sql:9-19]. The default for profession was 'RT' [0001_schema.sql:12]; migration 0022 changes the default to 'contractor' for accounts created after it, and does not change existing rows [supabase/migrations/0022_contractor_accounts.sql]. An account whose profession is 'contractor' does not see "Continuing education" in the menu [lib/account/accountType.ts].
+2. Migration 0013 adds two more profile columns: company_name (1–200 characters) and logo_storage_key, which is the storage path of an uploaded logo image [supabase/migrations/0013_receiving_page.sql:21-41].
+3. When a sign-in account is created, a database trigger copies the account's email address into profiles.notification_email [supabase/migrations/0001_schema.sql:141-154].
+4. The user can edit display_name, notification_email and company_name from Settings [lib/account/actions.ts:32-51].
+5. disclaimer_acknowledged_at is set when the user accepts the first-run disclaimer [lib/auth/actions.ts:62].
+6. No code in app/ or lib/ writes stripe_customer_id. A code comment says: "there is no Stripe dependency, and `STRIPE_*` is named in `.env.example` and read nowhere in code" [lib/billing/entitlements.ts:48-49].
+7. The user signs in with an email and password, or with a one-time email link. The app sends the email and password to Supabase Auth [app/(auth)/actions.ts:50, 79, 115].
+8. The sign-in account records (in Supabase's auth.users table: email, password, sessions) are managed by Supabase Auth. What columns that table holds, and how passwords are stored, is unknown: this repository does not define it.
+9. Two-factor sign-in uses one-time codes from an authenticator app (TOTP), set up through Supabase Auth's MFA functions [app/(app)/settings/MfaPanel.tsx:74, 108]. Where the factor secret is stored and how it is protected is unknown: this repository does not record it.
+10. The audit log records these account events: auth.signup, auth.login, auth.logout, auth.disclaimer_acknowledged, auth.mfa_enrolled, auth.mfa_removed and account.update. The sign-in method ('password' or 'magic_link') is stored in the event's metadata [lib/audit/events.ts:13-25, 93, 137-140; app/(auth)/actions.ts:58].
+11. When profile fields change, the account.update audit row records which fields were set (true/false), not their values [lib/account/actions.ts:57-68].
+12. The "ce_courses" table stores continuing-education courses: title (1–120 characters), course_type, provider, accreditor, nbrc_area, hours and completed_on. All are typed by the user [supabase/migrations/0009_continuing_education.sql:19-31].
+13. The "reminder_rules" table has one row per credential: offsets (default 90, 60, 30 and 7 days), channel (email only) and enabled [supabase/migrations/0001_schema.sql:56-66].
+14. The "reminder_sends" table records each reminder sent: credential_id, offset_days, expires_on and sent_at. Rows cannot be changed or deleted (append-only) [supabase/migrations/0001_schema.sql:71-79, 174-176].
+15. The "organizations" table (the contact "book") stores: name, org_type, regions_served, specialties, website and notes [supabase/migrations/0011_gc_book.sql:32-44].
+16. The "contacts" table stores people at those organizations: name, title, email, phone, time_zone and notes. These are details about other people that the user types in [supabase/migrations/0011_gc_book.sql:59-71].
+17. The "organization_requirements" table stores which document types an organization asks for [supabase/migrations/0011_gc_book.sql:102-116].
+18. The "answer_bank" table has one row per account with business details: legal_name, dba, entity_type, year_established, bonding_capacity, surety_name, emr_value, emr_year, insurance_carrier, insurance_limits, the safety contact's name, email and phone, a postal address (two lines, city, state, postal code), and the primary contact's name, email and phone [supabase/migrations/0016_answer_bank.sql:43-92].
+19. The answer bank has no EIN column and no insurance policy number column. The migration comment says so, and says: "nothing here encrypts a column" [supabase/migrations/0016_answer_bank.sql:16-23, 176-177].
+20. The "representative_grants" table stores helper invitations: holder_id, representative_id, invited_email, invite_token, invited_at, accepted_at, revoked_at, can_assemble, can_send, can_manage_book, receives_reminders, created_at and updated_at [supabase/migrations/0017_representative_role.sql:42-89].
+21. The "representative_documents" table lists which documents a holder has shared with which helper (grant_id, document_id) [supabase/migrations/0017_representative_role.sql:108-113].
+22. The "calendar_feeds" table stores user_id, token, created_at and revoked_at [supabase/migrations/0018_calendar_feed.sql:49-68].
+23. Every table listed in this section has row-level security switched on and forced. Before migration 0017, every access rule allowed a user to reach only rows where user_id equals their own account id [supabase/migrations/0002_rls.sql:7-23; 0009_continuing_education.sql:113-126; 0011_gc_book.sql:134-204; 0016_answer_bank.sql:185-203; 0017_representative_role.sql:11-16; 0018_calendar_feed.sql:115-140].
+24. The generated database types list 19 tables: audit_log, ce_courses, contacts, organization_requirements, organizations, credentials, delivery_events, delivery_records, document_requests, documents, answer_bank, package_recipients, packages, profiles, representative_grants, calendar_feeds, representative_documents, reminder_rules and reminder_sends [lib/database.types.ts:30-807].
+
+
+2. WHAT THE APP STORES ABOUT THEIR DOCUMENTS
+
+1. The "credentials" table stores: type, issuing_state (two letters), identifier (free text), label, expires_on, notes, created_at and updated_at [supabase/migrations/0001_schema.sql:22-34]. Later migrations add nbrc_subtype [0008_credential_types.sql:44-45], membership_number (up to 40 characters, AARC membership only) [0009_continuing_education.sql:179-187] and issuing_body (trade certifications only) [0010_contractor_document_types.sql:122-139].
+2. expires_on is typed by the user. The schema comment reads: "USER-ENTERED; sole source of status" [supabase/migrations/0001_schema.sql:30].
+3. A code comment says license numbers are kept in credentials.identifier, next to credentials.issuing_state [supabase/migrations/0016_answer_bank.sql:25-27].
+4. The allowed credential types are: state_license, bls, acls, pals, nrp, nbrc, aarc_membership, malpractice, ce_certificate, immunization, certificate_of_insurance, additional_insured_endorsement, contractor_license, bonding_capacity_letter, emr_letter, safety_program, osha_training_card, w9, business_license, trade_certification, manufacturer_certification, reference_letter, capability_statement and other [supabase/migrations/0010_contractor_document_types.sql:77-106].
+5. The "documents" table stores each file's details: storage_key (unique), file_name, mime_type (PDF, PNG or JPEG only), size_bytes, checksum_sha256, version (default 1), created_at and updated_at [supabase/migrations/0001_schema.sql:39-51].
+6. Each document belongs to exactly one credential or one continuing-education course [supabase/migrations/0009_continuing_education.sql:133-143].
+7. The storage path of a document is {user id}/{credential or course id}/{random id}.{extension} [app/api/documents/upload-url/route.ts:54].
+8. file_name is the name the browser sends with the upload. If none is sent, it is "document" [app/api/documents/confirm/route.ts:81].
+9. Uploading works in two steps. The server first issues a signed upload address [app/api/documents/upload-url/route.ts:57-60]. After the upload, the server downloads the file, checks its real type from the first bytes of the file, checks its size, computes a SHA-256 checksum, and only then writes the documents row. A file that fails the check is deleted from storage [app/api/documents/confirm/route.ts:52-101; lib/security/validateUpload.ts:16-24].
+10. The default size limit is 15 MB. It can be changed with the DOCUMENT_MAX_BYTES setting [lib/security/validateUpload.ts:8]. The storage bucket has its own 15 MB limit [supabase/migrations/0004_storage.sql:23].
+11. Every document row starts at version 1 [supabase/migrations/0001_schema.sql:48]. No code in app/ or lib/ changes a document's version, and no table keeps earlier versions of a file. ARCHITECTURE.md says "versioning enabled on `documents`" [ARCHITECTURE.md § Object storage model (document, not code)].
+12. The "packages" table stores: title, cover_note, storage_key and document_ids, which is the list of documents included when the package was built [supabase/migrations/0001_schema.sql:83-92].
+13. A built package is a ZIP file stored at {owner id}/{package id}.zip in the "packages" storage bucket [app/api/packages/route.ts:235-238].
+14. The ZIP contains a cover sheet PDF and the document files. The cover sheet shows: the preparer's name, the package title, the date prepared, the cover note, and for each document its label, type, issuing state, the expiration date "as entered by the user" and the file name [lib/packages/coverSheet.ts:80-131].
+15. The "package_recipients" table has one row per recipient of a package. Its columns are: user_id, package_id, contact_id, recipient_email, recipient_name, recipient_organization, link_token, expiry_days, scheduled_for, sent_at, opened_at, downloaded_at, expires_at, send_failed_at, failure_reason, nudged_at, served_versions, cover_letter_body, cover_letter_sent, provider_message_id, bounced_at, created_at and updated_at [lib/database.types.ts:517-543; supabase/migrations/0012_recipient_sends.sql:24-77; 0013_receiving_page.sql:55-56; 0014_cover_letter.sql:39-106; 0021_recipient_send_evidence.sql:34-36].
+16. provider_message_id is the email provider's id for the sent message. It is 1–200 characters, unique when present, and allowed only once sent_at is set. bounced_at is also allowed only once sent_at is set. The server writes both, using the service role key [supabase/migrations/0021_recipient_send_evidence.sql:19-62].
+17. Users have no delete rule on package_recipients. A user can edit their own recipient row only before it is sent (while sent_at is empty) [supabase/migrations/0012_recipient_sends.sql:111-142].
+18. The "delivery_records" table logs single sends: package_id, recipient_email, subject, status ('sent', 'delivery_failed' or 'link_opened'), provider_message_id and sent_at. Rows cannot be changed or deleted (append-only) [supabase/migrations/0001_schema.sql:97-107, 166-168].
+19. The "delivery_events" table stores later news from the email provider about a delivery_records row: status, provider_event_id, occurred_at and created_at. Users can read only their own rows. Rows cannot be changed or deleted [supabase/migrations/0005_delivery_events.sql:29-53, 83-90].
+20. Of all the email provider's event types, only "email.bounced" is recorded [lib/deliveries/events.ts:68-75].
+21. The "document_requests" table stores requests from recipients: package_recipient_id, requested_type or requested_text (up to 500 characters), requester_name, requester_organization, created_at, fulfilled_at and fulfilled_document_id [supabase/migrations/0013_receiving_page.sql:66-119].
+22. Signed-in users have no insert rule and no delete rule on document_requests. They can read and update their own rows [supabase/migrations/0013_receiving_page.sql:136-159].
+23. served_versions is a list of document id and version number. It is written each time a recipient downloads the packet [supabase/migrations/0013_receiving_page.sql:55-59; app/p/[token]/download/route.ts:103-109].
+
+
+3. WHERE IT IS STORED, AND EVERY OUTSIDE SERVICE THAT TOUCHES CUSTOMER DATA
+
+Supabase (database, sign-in, file storage)
+1. The app uses Supabase's client libraries for its database, sign-in and file storage [package.json dependencies "@supabase/ssr", "@supabase/supabase-js"; lib/supabase/admin.ts; lib/supabase/server.ts].
+2. Files are kept in three storage buckets, all set to private (public = false): "documents" (15 MB limit; PDF, PNG and JPEG only), "packages" (100 MB limit; no file-type limit) and "logos" (2 MB limit; PNG and JPEG only) [supabase/migrations/0004_storage.sql:21-27; 0015_logo_storage.sql:34-38].
+3. ARCHITECTURE.md records the cloud project's region as us-east-1 [ARCHITECTURE.md § Open technical questions item 1 (document, not code)]. The physical location of backups is unknown: this repository does not record it.
+4. The server holds a service role key that is not limited by row-level security. A code comment says: "This key is `BYPASSRLS`: it sees and writes every user's rows" [lib/supabase/admin.ts:4]. It is used by: the recipient page, the recipient download, recipient document requests, the calendar feed, the scheduled-send job, the reminder job, the email webhook, all audit-log writes, account deletion, and every signed download address [lib/receiving/lookup.ts:117; app/p/[token]/download/route.ts:58; lib/receiving/requestActions.ts:60; lib/calendar/feed.ts:51; lib/deliveries/supabaseDeps.ts; lib/reminders/supabaseDeps.ts; app/api/webhooks/resend/route.ts; lib/audit/log.ts:50; app/api/account/delete/route.ts:58].
+
+Vercel (hosting and scheduled jobs)
+5. The repository names Vercel as the host [CLAUDE.md § Current stack (document, not code)]. vercel.json sets two scheduled jobs: /api/jobs/reminders daily at 13:00 UTC, and /api/jobs/sends at minute 5 of every hour [vercel.json].
+6. All server code described in this sheet runs on the host, so every piece of data it reads or writes, including document bytes during package building and downloads, passes through the host [app/api/packages/route.ts:153-162; lib/receiving/packet.ts; app/api/account/export/route.ts:78-80].
+7. Some server log lines include internal account ids and error messages. Examples: account deletion [app/api/account/delete/route.ts:99, 119-121] and package building [app/api/packages/route.ts:215-219]. The recipient page is written not to log the link token [lib/receiving/lookup.ts:105-113]. How long the host keeps logs is unknown: this repository does not record it.
+
+Resend (transactional email)
+8. Emails are sent to api.resend.com. Each request carries: a from address, one "to" address, the subject, a text body and an HTML body [lib/email/resend.ts:20, 70-78].
+9. Reminder emails contain the credential label, the date the user entered, the number of days left, and links into the app [lib/email/emailTemplates.ts:24-35]. They go to the user's notification_email. A separate copy goes to each helper who is allowed to receive reminders [lib/reminders/supabaseDeps.ts:134-136; lib/reminders/job.ts:264, 303].
+10. Single-send delivery emails contain: the sender's name, the package title, the cover note, a signed download address for the stored package ZIP, and the expiry time. They go to the address the sender typed [lib/email/emailTemplates.ts:40-52; app/api/packages/[id]/send/route.ts:163-202].
+11. Scheduled "book" delivery emails contain: the sender's name, the package title, a link to /p/{token} and the expiry date. They go to the recipient's email address [lib/deliveries/supabaseDeps.ts:275-287].
+12. Reminder ("nudge") emails to the sender contain the package title, the recipient's email address and the date sent [lib/deliveries/supabaseDeps.ts:289-297].
+13. Helper invitation emails contain the holder's name and the list of permissions offered. They go to the invited address [lib/email/representativeInvite.ts:66-72; lib/representatives/actions.ts:176].
+14. Resend sends event reports back to /api/webhooks/resend. The app checks each report's signature with the RESEND_WEBHOOK_SECRET setting [app/api/webhooks/resend/route.ts:18-30].
+15. SESSION_HANDOFF.md says email open and click tracking are switched off at the email provider for the sending domain [SESSION_HANDOFF.md § Current reality (document, not code)]. No code in the repository can confirm or change that setting.
+16. Sign-up confirmation and one-time sign-in emails are sent by Supabase Auth. The app only supplies the return address link [app/(auth)/actions.ts:79-85, 115-121]. Which mail service Supabase Auth uses is unknown: the repository has no Supabase configuration file (supabase/ contains only migrations/ and tests/).
+17. How long Resend keeps message content is unknown: this repository does not record it.
+
+Cloudflare (DNS)
+18. No code in app/ or lib/ refers to Cloudflare. ARCHITECTURE.md says "Cloudflare DNS; apex + `mail.` subdomain records for Resend" [ARCHITECTURE.md § Deployment assumptions (document, not code)]. What data, if any, reaches Cloudflare beyond DNS lookups is unknown: the DNS and proxy settings are not in this repository.
+
+Brevo (marketing email list)
+19. lib/newsletter/brevo.ts is the only code that contacts Brevo. It sends the email address typed into the signup form, a list id, and an OPT_IN_AT timestamp [lib/newsletter/brevo.ts:16, 28, 104, 149-153].
+20. The only caller is the newsletter form in the marketing site footer, which requires a consent checkbox [lib/newsletter/actions.ts:45-49; components/marketing/Footer.tsx:46]. No code sends account, credential or document data to Brevo.
+21. ARCHITECTURE.md says "Double opt-in is not implemented" [ARCHITECTURE.md § DECISION-018 (document, not code)].
+
+Doppler (secrets manager)
+22. doppler.yaml links the repository to a Doppler project with a "dev" configuration. `npm run dev` runs through `doppler run`, and `npm run build` does not [doppler.yaml; package.json:6-7]. No code sends customer data to Doppler. Where production secrets are held is described only in documents: CLAUDE.md says the host "supplies env its own way" [CLAUDE.md § Secrets (document, not code)].
+
+Stripe (payments, placeholder)
+23. No Stripe package appears in the dependencies, and no code calls Stripe [package.json dependencies; lib/billing/entitlements.ts:48-49]. The profiles.stripe_customer_id column exists but no code writes it [supabase/migrations/0001_schema.sql:15].
+24. The draft privacy policy lists "a payment processor (Stripe)" among the service providers [legal/PRIVACY_POLICY_DRAFT.md:33 (document, not code)].
+
+Fonts
+25. Five fonts are loaded with next/font/google: Caveat, Hanken Grotesk, Instrument Serif, Karantina and Special Gothic Expanded One [app/layout.tsx:2-8]. No link to fonts.googleapis.com or fonts.gstatic.com was found in app/ or components/. Whether a visitor's browser contacts Google at runtime is unknown from this repository: it depends on framework behavior the repository does not record.
+
+Analytics and error monitoring
+26. No analytics code found in the repository. A search of app/, lib/, components/, package.json and next.config.ts for common analytics and monitoring tools (Google Analytics/gtag, Tag Manager, Plausible, PostHog, Segment, Mixpanel, Vercel Analytics, Hotjar, Clarity, Fathom, Umami, Sentry) found nothing.
+27. ARCHITECTURE.md says "Sentry + Plausible wired before beta" [ARCHITECTURE.md § Deployment assumptions (document, not code)]. The draft privacy policy mentions "error-monitoring tools" [legal/PRIVACY_POLICY_DRAFT.md:33 (document, not code)]. Neither Sentry nor Plausible appears in the dependencies [package.json].
+28. The only outside web addresses the server code fetches directly are api.resend.com and api.brevo.com [lib/email/resend.ts:20; lib/newsletter/brevo.ts:16, 28].
+
+
+4. WHETHER UPLOADED FILES ARE ENCRYPTED WHEN STORED, AND WHO CAN OPEN THEM
+
+1. All three storage buckets are private (public = false) [supabase/migrations/0004_storage.sql:21-27; 0015_logo_storage.sql:34-38].
+2. Storage access rules for signed-in users: in "documents", a user can read, add, change and delete only files under their own account-id folder. In "packages", a user can only read their own files. In "logos", a user can read, add, change and delete their own files [supabase/migrations/0004_storage.sql:60-101; 0015_logo_storage.sql:61-98].
+3. Signed-out visitors ("anon") have no storage access rules at all [supabase/migrations/0004_storage.sql:41-42; 0015_logo_storage.sql:46-49].
+4. Migration 0017 adds no storage rules for helpers [supabase/migrations/0017_representative_role.sql].
+5. A signed download address for a user's own document or package lasts 900 seconds (15 minutes) by default. It can be set lower with DOWNLOAD_URL_TTL_SECONDS, and anything above 900 is capped at 900 [lib/security/signedUrlTtl.ts:24-48; app/api/documents/[id]/download-url/route.ts:21; app/api/packages/[id]/download-url/route.ts:32].
+6. Signed addresses for logos last 900 seconds, both in Settings and on the recipient page [app/(app)/settings/page.tsx:68; lib/receiving/lookup.ts:28].
+7. The single-send route signs the package ZIP for a period set by DELIVERY_LINK_TTL_SECONDS. The default is 604,800 seconds (7 days), and the code sets no upper limit [lib/deliveries/link.ts:19, 29-33; app/api/packages/[id]/send/route.ts:142-148].
+8. How long a signed upload address lasts is not set in the code, so the provider default applies. What that default is, is unknown from this repository [app/api/documents/upload-url/route.ts:58-60; app/api/profile/logo/upload-url/route.ts:48-50].
+9. The owner's download routes write an audit row before issuing a signed address. If that write fails, no address is issued [app/api/documents/[id]/download-url/route.ts:81-94; app/api/packages/[id]/download-url/route.ts:74-95].
+10. People who can open a stored document through the app: the owner; a helper who was given that specific document; anyone holding a live recipient link to a packet that contains it (section 5); and any server code that uses the service role key [supabase/migrations/0002_rls.sql:52-53; 0017_representative_role.sql:171-187, 294-297; lib/receiving/packet.ts; lib/supabase/admin.ts:4].
+11. No code encrypts files or database columns itself. The migration comment reads: "nothing here encrypts a column" [supabase/migrations/0016_answer_bank.sql:22-23]. SESSION_HANDOFF.md says: "Nothing in this system encrypts a column today" [SESSION_HANDOFF.md, answer-bank note near line 1487 (document, not code)].
+12. ARCHITECTURE.md says: "Storage encryption at rest (AES-256) is provider-managed" [ARCHITECTURE.md § Object storage model (document, not code)].
+13. Encryption at rest is unknown. Whether the provider encrypts stored files and database data, and who holds the keys, is not recorded in this repository.
+14. Marketing copy says: "Documents are encrypted at rest and in transit, always." [content/marketing.ts:537]. This is website text, not code that encrypts anything.
+15. The app's calls to Resend and Brevo use https addresses [lib/email/resend.ts:20; lib/newsletter/brevo.ts:16]. TLS for the site is described as "platform-enforced" [ARCHITECTURE.md § Security controls (document, not code)]. next.config.ts sets no security headers [next.config.ts]. Whether HSTS is set at the host is unknown from this repository.
+16. The account export sends every document back in the web response. It is not stored as a file [app/api/account/export/route.ts:1-20].
+
+
+5. EXACTLY WHAT A RECIPIENT CAN SEE AND DOWNLOAD, AND HOW LONG A LINK WORKS
+
+1. There are two ways to send. (a) Single send, POST /api/packages/[id]/send: the email carries a signed storage address for the ZIP built when the package was assembled [app/api/packages/[id]/send/route.ts:142-170]. (b) Scheduled "book" send: the email carries a link to /p/{token} [lib/deliveries/supabaseDeps.ts:38, 275-287].
+2. A recipient link token is 32 random bytes from the system's secure random generator, written as text (base64url) [lib/deliveries/token.ts:18, 30-34]. Each token is unique [supabase/migrations/0012_recipient_sends.sql:45].
+3. For book sends, the link lifetime is 7, 30 or 90 days, chosen at send time [supabase/migrations/0012_recipient_sends.sql:48; lib/deliveries/schedule.ts:27]. When the email is sent, expires_at is set to the send time plus that many days [lib/deliveries/dispatch.ts:195; lib/deliveries/supabaseDeps.ts:210-221].
+4. If a row's expires_at were empty, the access check would treat the link as not expired [lib/receiving/access.ts:69]. The only code that marks a book send as sent also sets expires_at [lib/deliveries/supabaseDeps.ts:210-221].
+5. For single sends, the link lifetime is DELIVERY_LINK_TTL_SECONDS. The default is 7 days, with no upper limit in the code [lib/deliveries/link.ts:19, 29-33].
+6. No code was found that cancels a recipient link token or a signed delivery address before it expires. Only one code path writes expires_at, and a user cannot edit a recipient row once it is sent [lib/deliveries/supabaseDeps.ts:213; supabase/migrations/0012_recipient_sends.sql:136-140].
+7. The /p/{token} page opens only if the token is correctly formed, matches a recipient row, has been sent, and has not expired. Every refusal shows the same message [lib/receiving/lookup.ts:88-134; lib/receiving/access.ts:61-73; app/p/[token]/page.tsx:74-82].
+8. What the page shows: the sender's logo, if one was uploaded (signed for 15 minutes); a heading, which is the sender's company_name, or else display_name, or else the package title; the package title; the cover letter as it was sent; a "current as of" timestamp; for each document its type, its credential label (or the file name) and the expiration date the sender entered (or "on file" / no expiry); a "download all" button; a request form and the list of earlier requests from this link; and the standard disclaimer [app/p/[token]/page.tsx:99-215; lib/receiving/lookup.ts:214-243].
+9. When the sender has a notification_email, the page shows it as a contact email, together with the company name and display name [app/p/[token]/page.tsx:171-183; lib/receiving/lookup.ts:144, 222].
+10. The page reads the documents live each time. It shows the documents as they are now, not as they were when sent [lib/receiving/lookup.ts:155-161].
+11. On the page, the documents and credentials are looked up by id only, from the package's document list. That lookup has no account-id filter [lib/receiving/lookup.ts:158-161, 169-172]. The download builder does filter by the account id [lib/receiving/packet.ts:69-90].
+12. Neither the page nor the download reads credentials.identifier or credentials.notes [lib/receiving/lookup.ts:171; lib/receiving/packet.ts (credentials select: id, label, type, nbrc_subtype, issuing_state, expires_on)].
+13. The book-send download (/p/{token}/download) builds a new ZIP for each request from the current documents. The ZIP contains: a cover sheet (preparer name, title, cover note, this recipient's cover letter, and for each document its label, type, issuing state and entered expiry date), the document files, and for course certificates the course title, hours, completion date, provider, accreditor and area [app/p/[token]/download/route.ts:76-95; lib/receiving/packet.ts; lib/packages/coverSheet.ts:80-131].
+14. The page is marked no-index for search engines [app/p/[token]/page.tsx:18-21]. The download is sent with "no-store, private" and "noindex, nofollow" headers [app/p/[token]/download/route.ts:128-131].
+15. No limit on the number of downloads was found. The download works each time until the link expires [app/p/[token]/download/route.ts:51-134].
+16. From the page, a recipient can send the owner a document request. They choose a document type or type free text (up to 500 characters). Their name is required (up to 200 characters) and their organization is optional [lib/receiving/requestActions.ts:35-80].
+17. A single-send recipient gets the ZIP stored when the package was built. It is not rebuilt with current documents [app/api/packages/[id]/send/route.ts:142-148; supabase/migrations/0001_schema.sql:88-89].
+18. The cover letter can include these fill-in fields: recipient name, organization, sender name, sender company and packet title [lib/deliveries/dispatch.ts (renderCoverLetter)].
+
+
+6. WHAT A HELPER (REPRESENTATIVE) CAN AND CANNOT SEE OR DO
+
+1. The holder invites a helper by email address. The invitation gives no access until it is accepted. To accept, the helper must be signed in with the same email address that was invited [supabase/migrations/0017_representative_role.sql:47-50; lib/representatives/acceptActions.ts:73-74].
+2. The invitation has no expiry column. It stays usable until it is accepted or revoked [supabase/migrations/0017_representative_role.sql:42-89].
+3. Every permission is off by default (can_assemble, can_send, can_manage_book, receives_reminders) [supabase/migrations/0017_representative_role.sql:67-70].
+4. Documents: a helper can read only the documents the holder shared with them one by one, plus the credential record behind each of those documents [supabase/migrations/0017_representative_role.sql:171-209, 294-303].
+5. The helper's access rules pick whole rows. Signed-in users can read every column of the credentials table [supabase/migrations/0002_rls.sql:27], so a helper who can read a credential record can also read its identifier and notes columns.
+6. can_assemble lets a helper read all of the holder's packages and create new ones [supabase/migrations/0017_representative_role.sql:307-317; app/api/packages/route.ts:72]. When a helper assembles a package, the documents are looked up under the helper's own sign-in, so only documents shared with them can be included [app/api/packages/route.ts:86-90].
+7. can_send lets a helper read all of the holder's packages [supabase/migrations/0017_representative_role.sql:307-312]. It also lets them read and create the holder's recipient rows, which include recipient emails, names, organizations, cover letters, and open and download times [supabase/migrations/0017_representative_role.sql:322-336]. They can also use the single-send route [app/api/packages/[id]/send/route.ts:84] and add rows to the holder's delivery log [supabase/migrations/0020_representative_delivery_records.sql:51-62].
+8. The package download route (/api/packages/[id]/download-url) does not check the helper's permissions or which documents were shared. It issues a 15-minute signed address for any holder package the helper can read [app/api/packages/[id]/download-url/route.ts:52-102; supabase/migrations/0017_representative_role.sql:307-312].
+9. can_manage_book lets a helper read, add, change and delete the holder's organizations, contacts and organization requirements [supabase/migrations/0017_representative_role.sql:340-356].
+10. Any accepted helper who has not been revoked can read the holder's delivery log (recipient_email, subject, status), whatever permissions they hold [supabase/migrations/0020_representative_delivery_records.sql:71-74].
+11. receives_reminders sends the helper's invited address a copy of the holder's reminder emails, which show the credential label and date. The copies cover the holder's credentials generally, not only the documents shared with the helper [lib/reminders/supabaseDeps.ts:105, 131-137; lib/reminders/job.ts:296-308].
+12. A helper sees the holder's company_name, or else display_name [lib/representatives/acting.ts:60-62].
+13. There are no helper access rules on: profiles, answer_bank, ce_courses, reminder_rules, reminder_sends, calendar_feeds, document_requests, delivery_events or audit_log [supabase/migrations/0017_representative_role.sql:286-356; 0020_representative_delivery_records.sql].
+14. A helper can read their own grant. They cannot change it, and cannot add to or remove from their list of shared documents [supabase/migrations/0017_representative_role.sql:231-284].
+15. Revoking a grant sets revoked_at. Every helper access check requires revoked_at to be empty [supabase/migrations/0017_representative_role.sql:125-209].
+16. When a helper acts, the audit row is filed under the holder's account, with the helper recorded as actedBy [lib/representatives/acting.ts:111-114].
+17. A holder can send at most 5 helper invitations per hour [lib/deliveries/rateLimit.ts:101-113].
+
+
+7. WHAT THE CALENDAR FEED EXPOSES
+
+1. The feed address is /c/{token}. The token is made the same way as recipient link tokens: 32 random bytes [lib/calendar/actions.ts:56; lib/deliveries/token.ts:18, 30-34].
+2. No sign-in is needed. The server finds the token's owner using the service role key and a database function [lib/calendar/feed.ts:51-68; supabase/migrations/0018_calendar_feed.sql:93-112].
+3. The feed contains one calendar event for every credential of the owner that has an expiration date [lib/calendar/feed.ts:71-76, 90-95].
+4. Each event holds: an id made of the credential id, the date and "@sendmylicense.com"; the start and end dates; a title of "{label} — expiration date you entered"; and a fixed note. The calendar is named "Steelticket — dates you entered" [lib/calendar/feed.ts:22, 30; lib/calendar/ics.ts:146, 181-192].
+5. The feed contains no files, file links, credential identifiers or notes, and no continuing-education courses [lib/calendar/feed.ts:73].
+6. There is no setting to leave individual credentials out of the feed [lib/calendar/feed.ts:71-76, 90-95].
+7. An unknown or revoked token gets an empty but valid calendar, with status 200 [app/c/[token]/route.ts:32-33, 43].
+8. Responses are sent with "no-store" and "noindex, nofollow" headers [app/c/[token]/route.ts:54-55].
+9. A person can have only one live feed [supabase/migrations/0018_calendar_feed.sql:71-73]. The user can revoke it. Making a new feed revokes the old one first [lib/calendar/actions.ts:36-56, 80-91].
+10. A revoked token cannot be switched back on. Users have no delete rule, so feed rows are kept [supabase/migrations/0018_calendar_feed.sql:17-30, 121].
+11. A feed has no expiry date. It works until it is revoked or the account is deleted [supabase/migrations/0018_calendar_feed.sql:49-68].
+12. Each fetch of the feed is not written to the database or the audit log [lib/calendar/feed.ts; app/c/[token]/route.ts].
+
+
+8. HOW LONG ANYTHING IS KEPT, AND WHAT HAPPENS WHEN A USER DELETES A DOCUMENT OR THEIR ACCOUNT
+
+1. No retention schedule exists in code. The only scheduled jobs are reminders and sends [vercel.json], and no code deletes database rows or stored files on a timer.
+2. Deleting a credential deletes its row. Its document rows and reminder rule go with it automatically [lib/credentials/actions.ts:172-187; supabase/migrations/0001_schema.sql:42, 59].
+3. Deleting a credential or a course does not delete the stored files. A code comment says: "The stored object is not removed here, matching how credential deletion already behaves" [lib/ce/actions.ts:124-127; lib/credentials/actions.ts:183].
+4. There is no separate "delete one document" action in app/ or lib/. Document rows are deleted only when their credential or course is deleted, or when the account is deleted.
+5. When a document row is deleted, the helper sharing entries for it are removed, and any document request that pointed to it keeps its "fulfilled" mark but loses the link to the document [supabase/migrations/0017_representative_role.sql:110; 0013_receiving_page.sql:115].
+6. There is no action to delete a package. The package ZIP stays in storage until the account is deleted [supabase/migrations/0006_account_erasure.sql:25-28].
+7. Recipient rows (package_recipients) and document requests cannot be deleted by users. They stay until the account is deleted [supabase/migrations/0012_recipient_sends.sql:111-114; 0013_receiving_page.sql:143-145].
+8. Deleting a contact clears the link from past recipient rows. The recipient's email, name and organization saved on those rows stay [supabase/migrations/0012_recipient_sends.sql:29-40; 0014_cover_letter.sql:77-111].
+9. delivery_records, delivery_events, reminder_sends and audit_log cannot have rows changed or deleted. A database trigger enforces this [supabase/migrations/0001_schema.sql:166-176; 0005_delivery_events.sql:88-90].
+10. Account deletion runs in this order: the user types a confirmation phrase; an audit row is written that records only counts of documents, packages and deliveries; every file under the user's folder in the "documents" and "packages" buckets is removed; the database function erase_account deletes the sign-in account, which removes the user's rows from the other tables; the session is ended [app/api/account/delete/route.ts:51-130].
+11. The deletion route clears only the "documents" and "packages" buckets. It does not touch the "logos" bucket [app/api/account/delete/route.ts:92]. The code removes a logo file only when the user replaces or removes the logo [app/api/profile/logo/route.ts:97, 136].
+12. The deletion route makes no call to Brevo or Resend [app/api/account/delete/route.ts]. An email template for "deletion confirmed" exists, but no code in app/ or lib/ uses it [lib/email/emailTemplates.ts:67-70].
+13. audit_log.user_id is not linked to the account table, so audit rows stay after the account is deleted [supabase/migrations/0001_schema.sql:113-122; app/api/account/delete/route.ts:18-21].
+14. Migration 0006 changed the trigger function reject_mutation() so it allows deletes during account erasure only. erase_account turns that on briefly, for one database transaction [supabase/migrations/0006_account_erasure.sql:53-97].
+15. Migration 0019 rewrote reject_mutation() using the 0001 version, which does not have the account-erasure exception [supabase/migrations/0019_pin_function_search_paths.sql:60-71]. With 0019 applied, erasing an account that has any delivery_records row failed with "delivery_records is append-only" (reproduced on a local test database on 2026-09-25). Migration 0023 restores the exception from 0006 [supabase/migrations/0023_restore_erasure_exception.sql]; a database test erases an account with send history and passes with 0023, and fails without it [supabase/tests/erasure_history_verify.sql]. Neither 0019 nor 0023 is applied to the live project [SESSION_HANDOFF.md (document, not code)].
+16. ARCHITECTURE.md gives audit_log a "12-month retention" [ARCHITECTURE.md § Logging/audit expectations (document, not code)]. The draft privacy policy says audit records are "retained up to 12 months" [legal/PRIVACY_POLICY_DRAFT.md:37 (document, not code)]. No code carries this out, and the trigger blocks deleting audit rows [supabase/migrations/0001_schema.sql:170-172].
+17. Backup retention is unknown. The draft privacy policy has a blank for it: "[BACKUP_RETENTION_DAYS — confirm with infrastructure settings, target ≤30]" [legal/PRIVACY_POLICY_DRAFT.md:37 (document, not code)].
+18. The self-service export includes: profiles, credentials, ce_courses, documents (with the files), reminder_rules, packages, and delivery_records with their delivery_events. It does not include organizations, contacts, organization_requirements, answer_bank, package_recipients, document_requests, representative_grants or calendar_feeds [app/api/account/export/route.ts:47-60].
+19. Helper grants are deleted automatically when either the holder's or the helper's account is deleted [supabase/migrations/0017_representative_role.sql:45, 49].
+20. How long the host, Resend, Brevo and Supabase keep their own logs or copies is unknown: this repository does not record it.
+
+
+9. WHAT IS LOGGED ABOUT RECIPIENTS
+
+1. opened_at is set once, the first time the page loads successfully, and is never overwritten [lib/receiving/lookup.ts:199-212; lib/receiving/access.ts:86-88].
+2. Later page visits are not recorded anywhere [lib/receiving/lookup.ts].
+3. downloaded_at and served_versions are overwritten on every download, so only the latest download is kept [app/p/[token]/download/route.ts:103-109].
+4. A document request stores the requester's name, organization, the requested type or free text, and the time [supabase/migrations/0013_receiving_page.sql:66-119; lib/receiving/requestActions.ts:74-81].
+5. nudged_at is set once, when the sender is told that a send has not been opened 7 days after it was sent [lib/deliveries/schedule.ts:214; lib/deliveries/dispatch.ts:215-223; lib/deliveries/supabaseDeps.ts:258].
+6. bounced_at is set once, when the email provider reports a bounce [lib/deliveries/recipientBounce.ts:52-54; supabase/migrations/0021_recipient_send_evidence.sql:21-22].
+7. send_failed_at and failure_reason record failed sends. The reason is one of 'unconfigured', 'rejected' or 'unavailable' [lib/deliveries/supabaseDeps.ts:249; lib/email/resend.ts (SendResult)].
+8. Single sends store the recipient's email address in delivery_records [app/api/packages/[id]/send/route.ts:223-230]. Provider event rows store the provider's delivery id (the svix-id header) [app/api/webhooks/resend/route.ts:99].
+9. Audit event package.send: for book sends its metadata holds packageId, ttl and scheduled [lib/deliveries/supabaseDeps.ts:195-207]; for single sends it holds ttl only [app/api/packages/[id]/send/route.ts:185-192]. Neither includes the recipient's address.
+10. Audit event packet.downloaded: its metadata holds the number of documents [app/p/[token]/download/route.ts:111-118].
+11. Audit event document.requested: its metadata holds the requester's name and the kind of request [lib/receiving/requestActions.ts:98].
+12. Audit event delivery.provider_event: its metadata holds the provider's event type and the status it maps to [app/api/webhooks/resend/route.ts:119, 168].
+13. No code reads a visitor's IP address or browser details (the x-forwarded-for, x-real-ip or user-agent headers). The only request headers read are the host and protocol headers used to build links [lib/auth/appUrl.ts:23-30], the svix signature headers [app/api/webhooks/resend/route.ts:18-26], and the authorization header on the job routes [app/api/jobs/reminders/route.ts:33; app/api/jobs/sends/route.ts:34].
+14. No database column for an IP address or browser details appears in the migrations [supabase/migrations/0001–0023].
+15. Whether the host or Supabase records visitor IP addresses in their own logs is unknown from this repository.
+16. For single sends there is no record of the recipient opening the link. The 'link_opened' status is never written, and email click and open events are ignored [lib/deliveries/events.ts:52-75].
+17. The "not opened" reminder email sent to the sender contains the recipient's email address [lib/deliveries/supabaseDeps.ts:289-297].
+
+
+10. WHETHER ANYTHING SPECIAL PROTECTS A W-9
+
+1. "w9" is one of the allowed credential types [supabase/migrations/0010_contractor_document_types.sql:98]. It is shown as "W-9" [lib/credentials/vocabulary.ts:56] and has no expected expiry date [lib/credentials/vocabulary.ts:179]. With no date entered, it shows as "On file" [lib/credentials/format.ts:68-95].
+2. The answer bank page has a button that opens the stored W-9 through the normal document download route (15-minute signed address) [app/(app)/answers/page.tsx:92; components/answers/OpenDocumentButton.tsx:42].
+3. Uploads are checked the same way for every document type: PDF, PNG or JPEG, checked from the file's first bytes, with the same size limit. No rule applies only to W-9s [lib/security/validateUpload.ts; app/api/documents/confirm/route.ts].
+4. The app does not store an EIN. The answer bank has no EIN column, and the page says "We don't store your EIN. It's on your W-9, and the button opens it." [supabase/migrations/0016_answer_bank.sql:16-23; content/app.ts:1212].
+5. Nothing protects a W-9 beyond the rules that apply to all documents. A search of lib/, app/, components/ and content/ for "w9", "W-9", "ssn", "taxpayer", "redact" and "mask" found no masking, redaction, extra encryption, access check or storage location specific to W-9s. The hits were the type list and labels [lib/credentials/vocabulary.ts:56, 91, 179; lib/supabase/types.ts:58, 95], the display rule [lib/credentials/format.ts:68-95], the form wording [components/credentials/CredentialForm.tsx:54, 123, 257], the answer-bank button [app/(app)/answers/page.tsx:27, 92; components/answers/OpenDocumentButton.tsx:9], and the answer-bank copy [content/app.ts:1212-1214].
+6. A W-9 is therefore stored in the same "documents" bucket under the same access rules as other documents. Like any other document, it can be added to packages, shared with a helper, and sent to recipients [supabase/migrations/0004_storage.sql:60-90; 0017_representative_role.sql:293-297; app/api/packages/route.ts:86-90].
+7. Organizations and recipients can list 'w9' as a requested document type [supabase/migrations/0011_gc_book.sql:111; 0013_receiving_page.sql:89].
