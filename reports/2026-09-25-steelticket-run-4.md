@@ -11,9 +11,10 @@ skipped, not worked around.
 
 ## In one paragraph
 
-Seven of the eight steps are finished. The logo was blocked again: the five
-logo files did not reach this session, and they are final artwork that must not
-be redrawn, so nothing was done with them. The bid-list letter now has proper
+All eight steps are finished. The logo was blocked for most of the night,
+because the five files had not reached the session. Late in the run the owner
+committed them to the branch, and the logo is now in place everywhere it was
+asked for. The bid-list letter now has proper
 paragraphs. A helper now sees only what the invitation promises. Every link
 sent from now on can be stopped, and a stopped link shows the recipient the
 same "This link isn't available" page they would already see for an expired
@@ -30,23 +31,45 @@ copy, and the screenshots come from it. No email was sent in this run.
 
 ## Step by step
 
-### 1. Logo — SKIPPED (blocked)
+### 1. Logo — DONE (late in the run)
 
-**Why:** the five files were said to be attached, but none reached the
-session. They were not in the working folder, not on any branch, and not in
-this notebook. The instructions say not to redraw or recolor anything, so there
-was no honest way to go on without them.
+For most of the night this step was blocked, because the five files had not
+reached the session. Late in the run the owner committed them to the branch and
+asked for them to be used. They now live in `public/brand/`, with the icon
+renamed to `steelticket-icon.svg`. **Nothing was redrawn or recoloured.** Every
+copy made from them is checked by a test against the file it came from.
 
-**Still waiting on the files:** the header logo with its accessible name, the
-light-surface logo (receiving page, cover sheet, export, email), the email PNG,
-the tab icons in six sizes, and the two stored S marks for the marketing site.
-The cover sheet was not changed, so its checksum and master copy were not
-changed either.
+- **App header:** the on-dark logo. A screen reader hears its name as
+  "Steelticket.".
+- **Sign-in and first-run screens:** these sit on the light paper background,
+  so they use the on-light logo.
+- **Receiving page:** the on-light logo sits above the independence line, in
+  every state of the page, including "This link isn't available".
+- **Cover sheet:** the on-light logo, drawn as sharp vector lines taken
+  straight from the file's own shapes and colours. The cover sheet is a
+  checksummed file, so its master copy and both checksum lists were updated.
+- **Email:** the on-light logo as a PNG at the top of every email. It travels
+  *inside* the message as an attached image, not as a picture loaded from our
+  website. A picture loaded from our website would tell us when someone
+  opened the email, and the product promises no tracking beyond the
+  recipient following their own link. The existing test that guards that
+  promise now allows exactly this one attached image and still refuses any
+  image that would be loaded from elsewhere. **This has not yet been tried
+  with the real mail service.** The first real email should be checked in an
+  inbox.
+- **Browser tab icons:** 16, 32, 48, 180, 192 and 512 pixels, plus a
+  favicon.ico holding the three small sizes, all made from the icon file. They
+  apply to the app, sign-in, first-run and receiving pages. The marketing site
+  keeps its own until its run. **The missing-icon console error is gone:** zero
+  console errors and zero failed requests across all the screenshot passes.
+- **The two S marks** are stored for the marketing site. Nothing in the app
+  uses them.
+- **Export:** the export is a ZIP of data files and a plain-text read-me. There
+  is no page in it where a logo could go, so it has none.
 
-**Screenshots not possible without the files:** the browser tab icon and the
-cover sheet with the logo. The header screenshots in the folder show the
-current text wordmark, for reference. The one console error left on every page
-is the missing tab icon. It goes away when the icon files land.
+**One thing for the owner to look at:** the icon's dark background shows as
+solid black. In the file, those shapes have no colour set, and a missing colour
+draws as black. It was left exactly as drawn.
 
 ### 2. The "Getting on a bid list" letter — DONE
 
@@ -163,14 +186,13 @@ known to be leaking. Three new tests fail on the old code.
 
 ## Checks at the end of the run
 
-- Unit tests: **935 pass**, 0 fail.
+- Unit tests: **949 pass**, 0 fail. That includes 14 new logo tests.
 - Database suite (local copy only): **passes**, including this run's new
   checks.
-- Type check: clean. Lint: 0 errors. There is one old warning in the checksummed
-  cover sheet, which was left alone as a verified file.
+- Type check: clean. Lint: clean.
 - Verified-file audit: **clean**. Production build: **passes**.
-- Console errors across the screenshot passes: **one**, the missing tab icon
-  (step 1).
+- Console errors across the screenshot passes: **zero**, now that the tab icon
+  is in (step 1).
 
 ## Screenshots
 
@@ -183,10 +205,21 @@ reduced motion:
   page).
 - `cover-letter-*`: the corrected bid-list letter on the send screen.
 - `settings-trade-contractor-*`: the profession line on a contractor account.
-- `header-*`: the current header, for reference. The logo is blocked.
 
-**Not taken, because they are blocked by step 1:** the header with the logo, the
-browser tab icon, and the cover sheet with the logo.
+The logo, in files starting `logo-`:
+
+- `logo-header-*`: the app header, on desktop and phone.
+- `logo-sign-in-*`: the sign-in screen.
+- `logo-receiving-*` and `logo-receiving-unavailable-*`: the receiving page,
+  both working and unavailable.
+- `logo-cover-sheet.png`: a cover sheet made by the real code, then drawn as
+  an image.
+- `logo-email-delivery.png`: the email a general contractor receives. For the
+  preview only, the attached logo is shown from the same bytes, because a
+  browser cannot read an email attachment.
+- `logo-tab-icon.png`: the tab icons. A headless browser has no tab bar to
+  photograph, so this is a drawn stand-in tab bar using the real icon files
+  the app serves, with each size shown enlarged beneath it.
 
 One thing in the receipt screenshots comes from the test setup, not the app.
 The receipts that were stopped were created directly in the local copy, so the
@@ -194,7 +227,8 @@ The receipts that were stopped were created directly in the local copy, so the
 
 ## What the owner needs to decide or supply
 
-1. The five logo files, attached where the session can reach them.
+1. Look at the first real email in an inbox, to confirm the attached logo
+   shows. Also decide whether the icon's black background is intended.
 2. Wording for a repeated single send to the same address (step 4), if the
    existing "already scheduled" wording is not right.
 3. Whether a package, and its ZIP, should be deletable on its own (step 5).
