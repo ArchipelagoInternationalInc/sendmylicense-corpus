@@ -1,5 +1,5 @@
 STEELTICKET — EVERY LEGAL PAGE, VERBATIM
-Printed 2026-09-25 from the contractor branch by scripts/review-pack.ts.
+Printed 2026-09-26 from the contractor branch by scripts/review-pack.ts.
 
 The app has two legal pages. Each is rendered from the Markdown file named
 below, which is printed here exactly as it is in the repository.

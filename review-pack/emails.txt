@@ -1,5 +1,5 @@
 STEELTICKET — EVERY EMAIL THE APP SENDS, VERBATIM
-Printed 2026-09-25 from the contractor branch by scripts/review-pack.ts.
+Printed 2026-09-26 from the contractor branch by scripts/review-pack.ts.
 
 Each email is printed from the real template code with example values.
 Example values used: sender 'Example Framing Co.' / 'Site Office', packet
@@ -12,7 +12,7 @@ is shown with its markup removed; links are shown as [link: …].
 ==============================================================================
 1. Reminder about a date the user entered
 ==============================================================================
-When: Sent by the daily reminder job to the account holder (and to a helper who opted in to reminder copies).
+When: Sent by the daily reminder job to the account holder (and to a helper, if the account holder chose to send them copies).
 From: The app's transactional sender (the From line is set outside the code; see the end of this file).
 Source: lib/email/emailTemplates.ts (reminderEmail); called from lib/reminders/job.ts
 
@@ -31,7 +31,7 @@ Steelticket stores the documents you upload and tracks the dates you enter. It d
 
 HTML PART (markup removed):
 ------------------------------------------------------------------------------
-Steelticket
+[image: Steelticket.]
 
 This is a reminder you set up in Steelticket. For "State contractor license", the expiration date you entered is October 31, 2026 — 30 days from today.
 
@@ -70,7 +70,7 @@ Sent with Steelticket — the qualification packet tool built for subcontractors
 
 HTML PART (markup removed):
 ------------------------------------------------------------------------------
-Steelticket
+[image: Steelticket.]
 
 Example Framing Co. has sent you a credential package via Steelticket, at their request.
 
@@ -110,7 +110,7 @@ Sent with Steelticket — the qualification packet tool built for subcontractors
 
 HTML PART (markup removed):
 ------------------------------------------------------------------------------
-Steelticket
+[image: Steelticket.]
 
 Site Office has sent you a credential package via Steelticket, at their request.
 
@@ -149,6 +149,8 @@ Steelticket stores the documents you upload and tracks the dates you enter. It d
 
 HTML PART (markup removed):
 ------------------------------------------------------------------------------
+[image: Steelticket.]
+
 The packet "Prequalification packet" you sent to estimating@example.com on September 25, 2026 has not been opened yet. That is all we can tell — the link has not been followed. It may have been received and filed, and it may not have arrived at all.
 
 You can see every send and its receipt in your delivery log.
@@ -196,6 +198,8 @@ Steelticket stores the documents you upload and tracks the dates you enter. It d
 
 HTML PART (markup removed):
 ------------------------------------------------------------------------------
+[image: Steelticket.]
+
 Example Framing Co. uses Steelticket to store their licenses, insurance certificates and other paperwork, and to send them to general contractors. They have asked you to help.
 
 If you accept, you would be able to:
@@ -239,7 +243,7 @@ Steelticket stores the documents you upload and tracks the dates you enter. It d
 
 HTML PART (markup removed):
 ------------------------------------------------------------------------------
-Steelticket
+[image: Steelticket.]
 
 The export of your documents and information is ready. Download it with the link below — the link expires on October 2, 2026.
 
@@ -266,7 +270,7 @@ Steelticket stores the documents you upload and tracks the dates you enter. It d
 
 HTML PART (markup removed):
 ------------------------------------------------------------------------------
-Steelticket
+[image: Steelticket.]
 
 Your account and your documents have been deleted from Steelticket, as you requested. Thank you for trusting us with them.
 
@@ -282,9 +286,21 @@ Source: No template for these emails is in the repository.
 Note: Wording: unknown — the templates live in the authentication provider's settings, which this repository does not contain.
 
 ==============================================================================
+THE LOGO IN EVERY EMAIL
+==============================================================================
+Every email starts with the Steelticket wordmark, shown above as [image: …].
+It is a PNG carried inside the message as an inline attachment (cid:), not a
+picture loaded from a website, so opening an email tells nobody anything
+(lib/email/brandLogo.ts, attached by lib/email/resend.ts).
+
+==============================================================================
 THE FROM LINE
 ==============================================================================
 The From line is the environment variable EMAIL_FROM, set outside the repository
-(lib/email/resend.ts). On 2026-09-25 a test message sent by this branch arrived
-from the display name "SendMyLicense" at a no-reply address on the old name's
-mail subdomain. Changing it needs a new verified sending domain (owner item).
+(lib/email/resend.ts). The live setting is still the old name's sending address.
+On 2026-09-26, in local test settings only, it was set to
+the display name "Steelticket" at the no-reply address on mail.steelticket.com.
+The mail provider refused the
+test send with HTTP 403: "This API key is not authorized to send emails from
+mail.steelticket.com". Nothing was sent from the new address. The key's
+permission for that domain is an owner item.
