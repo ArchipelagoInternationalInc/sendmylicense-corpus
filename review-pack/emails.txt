@@ -50,7 +50,7 @@ Steelticket stores the documents you upload and tracks the dates you enter. It d
 When: Sent by the hourly send job to each recipient the user scheduled. The line at the bottom is added to every packet email.
 From: As above.
 Source: lib/email/emailTemplates.ts (deliveryEmail) + lib/email/senderLine.ts (withSenderLine); built in lib/deliveries/supabaseDeps.ts (buildDeliveryEmail)
-Note: The cover letter the user wrote is not in the email. It is the first page of the packet the recipient downloads.
+Note: The cover letter the user wrote is not in the email. It is the first page of the packet the recipient downloads. The expiry is in the sender's time zone (the example uses US Eastern). The disclaimer is the recipient version, naming the sender's company.
 
 SUBJECT: Example Framing Co. has sent you a credential package: Prequalification packet
 
@@ -58,14 +58,14 @@ PLAIN-TEXT PART:
 ------------------------------------------------------------------------------
 Example Framing Co. has sent you a credential package via Steelticket, at their request.
 
-Download it with the secure link below. For everyone's protection, the link expires on October 2, 2026.
+Download it with the secure link below. For everyone's protection, the link expires on Friday, October 2, 2026 at 10:53 PM EDT.
 
 Download: https://steelticket.example/p/EXAMPLE-LINK-TOKEN
 
-Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+Steelticket stores the documents Example Framing Co. uploads and shows the dates they entered. Steelticket does not check these documents or confirm that Example Framing Co. is qualified for a job.
 
 —
-Sent with Steelticket — the qualification packet tool built for subcontractors. Every document is current as of the date shown.
+Sent with Steelticket.
 ------------------------------------------------------------------------------
 
 HTML PART (markup removed):
@@ -74,13 +74,13 @@ HTML PART (markup removed):
 
 Example Framing Co. has sent you a credential package via Steelticket, at their request.
 
-Download it with the secure link below. For everyone's protection, the link expires on October 2, 2026.
+Download it with the secure link below. For everyone's protection, the link expires on Friday, October 2, 2026 at 10:53 PM EDT.
 
 Download the package [link: https://steelticket.example/p/EXAMPLE-LINK-TOKEN]
 
-Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+Steelticket stores the documents Example Framing Co. uploads and shows the dates they entered. Steelticket does not check these documents or confirm that Example Framing Co. is qualified for a job.
 
-Sent with Steelticket — the qualification packet tool built for subcontractors. Every document is current as of the date shown.
+Sent with Steelticket.
 ------------------------------------------------------------------------------
 
 ==============================================================================
@@ -98,14 +98,14 @@ Site Office has sent you a credential package via Steelticket, at their request.
 
 Message from Site Office: "Example note written by the user."
 
-Download it with the secure link below. For everyone's protection, the link expires on October 2, 2026.
+Download it with the secure link below. For everyone's protection, the link expires on Friday, October 2, 2026 at 10:53 PM EDT.
 
-Download: https://steelticket.example/storage-signed-link-EXAMPLE
+Download: https://steelticket.example/p/EXAMPLE-LINK-TOKEN
 
-Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+Steelticket stores the documents Example Framing Co. uploads and shows the dates they entered. Steelticket does not check these documents or confirm that Example Framing Co. is qualified for a job.
 
 —
-Sent with Steelticket — the qualification packet tool built for subcontractors. Every document is current as of the date shown.
+Sent with Steelticket.
 ------------------------------------------------------------------------------
 
 HTML PART (markup removed):
@@ -116,13 +116,13 @@ Site Office has sent you a credential package via Steelticket, at their request.
 
 Message from Site Office: "Example note written by the user."
 
-Download it with the secure link below. For everyone's protection, the link expires on October 2, 2026.
+Download it with the secure link below. For everyone's protection, the link expires on Friday, October 2, 2026 at 10:53 PM EDT.
 
-Download the package [link: https://steelticket.example/storage-signed-link-EXAMPLE]
+Download the package [link: https://steelticket.example/p/EXAMPLE-LINK-TOKEN]
 
-Steelticket stores the documents you upload and tracks the dates you enter. It does not check your documents, interpret any contract or prequalification requirement, or confirm you are qualified for a job. You are responsible for your own licensing, insurance, and compliance. Reminders are a convenience and are not guaranteed.
+Steelticket stores the documents Example Framing Co. uploads and shows the dates they entered. Steelticket does not check these documents or confirm that Example Framing Co. is qualified for a job.
 
-Sent with Steelticket — the qualification packet tool built for subcontractors. Every document is current as of the date shown.
+Sent with Steelticket.
 ------------------------------------------------------------------------------
 
 ==============================================================================
@@ -136,7 +136,7 @@ SUBJECT: Not opened yet: Prequalification packet
 
 PLAIN-TEXT PART:
 ------------------------------------------------------------------------------
-The packet "Prequalification packet" you sent to estimating@example.com on September 25, 2026 has not been opened yet. That is all we can tell — the link has not been followed. It may have been received and filed, and it may not have arrived at all.
+The packet "Prequalification packet" you sent to estimating@example.com on Friday, September 25, 2026 at 10:05 AM EDT has not been opened yet. That is all we can tell — the link has not been followed. It may have been received and filed, and it may not have arrived at all.
 
 You can see every send and its receipt in your delivery log.
 
@@ -151,7 +151,7 @@ HTML PART (markup removed):
 ------------------------------------------------------------------------------
 [image: Steelticket.]
 
-The packet "Prequalification packet" you sent to estimating@example.com on September 25, 2026 has not been opened yet. That is all we can tell — the link has not been followed. It may have been received and filed, and it may not have arrived at all.
+The packet "Prequalification packet" you sent to estimating@example.com on Friday, September 25, 2026 at 10:05 AM EDT has not been opened yet. That is all we can tell — the link has not been followed. It may have been received and filed, and it may not have arrived at all.
 
 You can see every send and its receipt in your delivery log.
 
