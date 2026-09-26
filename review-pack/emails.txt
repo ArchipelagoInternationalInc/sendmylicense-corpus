@@ -300,7 +300,8 @@ The From line is the environment variable EMAIL_FROM, set outside the repository
 (lib/email/resend.ts). The live setting is still the old name's sending address.
 On 2026-09-26, in local test settings only, it was set to
 the display name "Steelticket" at the no-reply address on mail.steelticket.com.
-The mail provider refused the
-test send with HTTP 403: "This API key is not authorized to send emails from
-mail.steelticket.com". Nothing was sent from the new address. The key's
-permission for that domain is an owner item.
+The first key was refused (HTTP 403: "This API key is not authorized to send
+emails from mail.steelticket.com"). With the owner's new send-only key, the
+one test packet to the studio address was accepted by the mail provider (HTTP
+200 with a message id) the same day. The live setting still uses the old
+address until the owner changes it.
