@@ -30,3 +30,11 @@ Nothing was pushed, merged, re-run or commented on.
 - Nothing on the live site or the live database.
 - No email sent, and no tracking added.
 - No edits to the Terms or the Privacy Policy.
+
+## Later the same day — run 6 arrived and was done
+
+The hold ended: the owner sent run 6 (the packet email in the owner's wording,
+and "packet" in place of "package" everywhere a person reads it). It was built,
+tested and pushed to the contractor branch; nothing merged. The full report is
+`reports/2026-09-26-steelticket-run-6.md`, with screenshots in the folder of the
+same name.

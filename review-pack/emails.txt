@@ -1,8 +1,8 @@
 STEELTICKET — EVERY EMAIL THE APP SENDS, VERBATIM
-Printed 2026-09-26 from the contractor branch by scripts/review-pack.ts.
+Printed 2026-10-01 from the contractor branch by scripts/review-pack.ts.
 
 Each email is printed from the real template code with example values.
-Example values used: sender 'Example Framing Co.' / 'Site Office', packet
+Example values used: sender company 'Example Framing Co.', packet
 'Prequalification packet', recipient estimating@example.com, and links under
 steelticket.example. Real links carry a random token.
 
@@ -52,15 +52,15 @@ From: As above.
 Source: lib/email/emailTemplates.ts (deliveryEmail) + lib/email/senderLine.ts (withSenderLine); built in lib/deliveries/supabaseDeps.ts (buildDeliveryEmail)
 Note: The cover letter the user wrote is not in the email. It is the first page of the packet the recipient downloads. The expiry is in the sender's time zone (the example uses US Eastern). The disclaimer is the recipient version, naming the sender's company.
 
-SUBJECT: Example Framing Co. has sent you a credential package: Prequalification packet
+SUBJECT: Example Framing Co. sent you their paperwork: Prequalification packet
 
 PLAIN-TEXT PART:
 ------------------------------------------------------------------------------
-Example Framing Co. has sent you a credential package via Steelticket, at their request.
+Example Framing Co. sent you their company paperwork through Steelticket.
 
-Download it with the secure link below. For everyone's protection, the link expires on Friday, October 2, 2026 at 10:53 PM EDT.
+Open it with the button below. The link expires on Friday, October 2, 2026 at 10:53 PM EDT.
 
-Download: https://steelticket.example/p/EXAMPLE-LINK-TOKEN
+Open the packet: https://steelticket.example/p/EXAMPLE-LINK-TOKEN
 
 Steelticket stores the documents Example Framing Co. uploads and shows the dates they entered. Steelticket does not check these documents or confirm that Example Framing Co. is qualified for a job.
 
@@ -72,11 +72,11 @@ HTML PART (markup removed):
 ------------------------------------------------------------------------------
 [image: Steelticket.]
 
-Example Framing Co. has sent you a credential package via Steelticket, at their request.
+Example Framing Co. sent you their company paperwork through Steelticket.
 
-Download it with the secure link below. For everyone's protection, the link expires on Friday, October 2, 2026 at 10:53 PM EDT.
+Open it with the button below. The link expires on Friday, October 2, 2026 at 10:53 PM EDT.
 
-Download the package [link: https://steelticket.example/p/EXAMPLE-LINK-TOKEN]
+Open the packet [link: https://steelticket.example/p/EXAMPLE-LINK-TOKEN]
 
 Steelticket stores the documents Example Framing Co. uploads and shows the dates they entered. Steelticket does not check these documents or confirm that Example Framing Co. is qualified for a job.
 
@@ -86,21 +86,22 @@ Sent with Steelticket.
 ==============================================================================
 3. A packet sent to one address at a time — the single send
 ==============================================================================
-When: Sent immediately when the user sends a package from the package page. The optional note is the user's own words.
+When: Sent immediately when the user sends a packet from the packet page. The optional note is the user's own words.
 From: As above.
 Source: lib/email/emailTemplates.ts (deliveryEmail) + lib/email/senderLine.ts; built in app/api/packages/[id]/send/route.ts
+Note: Run 6: the subject, the two lines and the button are the owner's wording, verbatim, in both send paths. The sender is named the same way the disclaimer names them: the company, else the person, else "the sender"; never an email address. The "Message from …" line appears only when the user wrote a note when assembling the packet; it was kept from the earlier email and is not part of the owner's new wording.
 
-SUBJECT: Site Office has sent you a credential package: Prequalification packet
+SUBJECT: Example Framing Co. sent you their paperwork: Prequalification packet
 
 PLAIN-TEXT PART:
 ------------------------------------------------------------------------------
-Site Office has sent you a credential package via Steelticket, at their request.
+Example Framing Co. sent you their company paperwork through Steelticket.
 
-Message from Site Office: "Example note written by the user."
+Message from Example Framing Co.: "Example note written by the user."
 
-Download it with the secure link below. For everyone's protection, the link expires on Friday, October 2, 2026 at 10:53 PM EDT.
+Open it with the button below. The link expires on Friday, October 2, 2026 at 10:53 PM EDT.
 
-Download: https://steelticket.example/p/EXAMPLE-LINK-TOKEN
+Open the packet: https://steelticket.example/p/EXAMPLE-LINK-TOKEN
 
 Steelticket stores the documents Example Framing Co. uploads and shows the dates they entered. Steelticket does not check these documents or confirm that Example Framing Co. is qualified for a job.
 
@@ -112,13 +113,13 @@ HTML PART (markup removed):
 ------------------------------------------------------------------------------
 [image: Steelticket.]
 
-Site Office has sent you a credential package via Steelticket, at their request.
+Example Framing Co. sent you their company paperwork through Steelticket.
 
-Message from Site Office: "Example note written by the user."
+Message from Example Framing Co.: "Example note written by the user."
 
-Download it with the secure link below. For everyone's protection, the link expires on Friday, October 2, 2026 at 10:53 PM EDT.
+Open it with the button below. The link expires on Friday, October 2, 2026 at 10:53 PM EDT.
 
-Download the package [link: https://steelticket.example/p/EXAMPLE-LINK-TOKEN]
+Open the packet [link: https://steelticket.example/p/EXAMPLE-LINK-TOKEN]
 
 Steelticket stores the documents Example Framing Co. uploads and shows the dates they entered. Steelticket does not check these documents or confirm that Example Framing Co. is qualified for a job.
 
