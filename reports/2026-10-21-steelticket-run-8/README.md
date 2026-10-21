@@ -127,8 +127,8 @@ each one. The badges are white on the app's deep green 6.53 : 1, deep red
 - The device pictures are hidden from screen readers and hold nothing
   focusable.
 
-**Console:** zero errors and zero warnings, across all five pages at 1280 and
-390, with and without reduced motion.
+**Console:** zero errors and zero warnings across all five pages: at 1280,
+and at 390 both with and without reduced motion.
 
 **Tests:**
 
