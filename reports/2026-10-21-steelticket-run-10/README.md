@@ -1,24 +1,28 @@
-# 2026-10-21 — Steelticket, run 10: the real database (partial)
+# 2026-10-21 — Steelticket, run 10: the real database
 
 **GitHub account:** ArchipelagoInternationalInc
 **Signing identity:** ArchipelagoInternational@proton.me
-**Branch:** the contractor branch. **Commit:** 9a52d23 (the one-time setup
-file).
+**Branch:** the contractor branch. **Commits:**
+
+- 9a52d23: the one-time setup file;
+- 90156d0: the 0006–0027 paste file;
+- 00913ff: the resume file.
 Nothing merged. Nothing touched the SendMyLicense live site, its database or
 Doppler.
 
-**Status: not finished.**
+**Status: done.**
 
-- **Applied:** migrations **0001–0005** (plus one setup step) are in
-  Steelticket's new, empty database, and each is proven byte for byte.
-- **Not applied:** **0006–0027**. The way this session reaches the database
-  will not send them.
-- **Waiting on the owner:** pasting one file into the database's SQL editor.
-  The verification for that is prepared.
+- **Applied:** all migrations **0001–0027** are in Steelticket's new
+  database, plus one setup step before 0001.
+- **Checked:** the database matches a local copy that has the same 27
+  migrations, item for item, in every section measured.
+- **Permissions:** correct on all 20 tables.
+- **Advisors:** nothing new beyond known, by-design notes (listed below).
 
 ## (a) Were 0001–0027 applied, and did the checks pass?
 
-**No — 0001–0005 only.**
+**Yes. All of 0001–0027 are in, and the checks passed.** Details below, in
+the order things happened.
 
 ### How the database was reached
 
@@ -68,7 +72,7 @@ Supabase stores the text of every migration it runs.
 | Storage rules | 5, each limited to the owner's own folder |
 | Default rights for future tables | identical to the existing live project after its 0003 |
 
-### 0006–0027: not applied
+### 0006–0027: the connector could not apply them
 
 - **The symptom:** the connector timed out on 0006 four times, at the same
   60-second limit each time. **Nothing reached the database**: no change, no
@@ -100,6 +104,94 @@ Supabase stores the text of every migration it runs.
   - The same query then runs on the new project, so any difference shows
     section by section.
 
+### 0006–0027: applied in the SQL editor, then one repair
+
+- **The run:** the owner ran the migrations in the new project's SQL editor,
+  from one file that holds 0006–0027 in order, byte for byte as in the repo
+  (`supabase/setup/steelticket-0006-0027.sql`, checked by script).
+- **The error:** a later run of the same file stopped at 0009 with
+  "constraint ... already exists".
+- **What a read-only comparison showed:** every object from 0006–0027 was
+  already present. The file had been run before. The second run re-applied
+  0006 and 0008, then stopped. Re-applying those two had put two objects back
+  to their older versions:
+  - **the credential-type check:** back to 0008's list; the current list is
+    0010's;
+  - **the append-only guard:** the same body, but it had lost the pinned
+    search path set by 0019 and 0023.
+
+  Nothing from the stopped 0009 was kept.
+- **The repair:** `supabase/setup/steelticket-resume.sql` restores exactly
+  those two objects, copied word for word from 0010 and 0023.
+  - It is safe to run more than once. I ran it twice on the local copy, which
+    stayed identical.
+  - It ends by printing ok / NOT OK.
+  - The owner ran it, and both read ok.
+
+### The comparison, section by section
+
+Every section was read from the new database and from a local database with
+0001–0027 applied, on the same Postgres version (17.11):
+
+| Section | Local | New database | Result |
+|---|---|---|---|
+| Tables | 20 | 20 | identical |
+| Columns (type, nullability, default, comment) | 206 | 206 | identical |
+| Constraints | 130 | 130 | identical |
+| Indexes | 67 | 67 | identical |
+| Policies (tables and storage) | 77 | 77 | identical |
+| Functions (body fingerprint, settings) | 17 | 17 | identical |
+| Triggers | 23 | 23 | identical |
+| Who may call each function | 42 | 42 | identical |
+| Storage buckets | 3 | 3 | identical |
+
+**Remaining differences: none.**
+
+### Permissions on all 20 tables
+
+| Check | Result |
+|---|---|
+| Row-level security on and forced | 20 of 20 |
+| Public (signed-out) role: any right on any table | **none** |
+| TRUNCATE (the append-only bypass) held by any role | **none** |
+| Server role: read/write | 20 of 20 |
+| Signed-in role | **exactly what the migrations grant**, table by table, for all 20; for example, read and update only on document requests, and no delete on package recipients or calendar feeds |
+| Storage buckets | 3, all **private**: documents (15 MB; PDF, PNG, JPEG), logos (2 MB; PNG, JPEG), packages (100 MB) |
+
+The database holds no rows: no users, no stored files, no audit entries.
+
+### Supabase's advisors, at 0001–0027
+
+**Security:**
+
+- **The audit log has no policies:** by design. Only the server reads or
+  writes it.
+- **One helper function has an unpinned search path:**
+  `assert_no_price_columns`, from 0010. It is not a privileged function, and
+  0019 did not cover it. A one-line tidy-up for a future migration, the
+  owner's call.
+- **Signed-in users can call six privileged functions through the API.**
+  Five of them are by design: the helper-access checks `rep_acts_for`,
+  `rep_can`, `rep_may_view_document` and `rep_may_view_credential`, and the
+  calendar-feed lookup. The access rules call them, and 0017 and 0018 grant
+  them to signed-in users on purpose.
+- **The sixth, the new-account trigger `handle_new_user`:** the advisor says
+  both signed-out and signed-in callers could invoke it. Postgres refuses to
+  run a trigger function that way, so nothing is exposed. Still a one-line
+  tidy-up, and the same on the existing live project.
+
+**Performance:**
+
+- **57 policies** call the sign-in check once per row rather than once per
+  query.
+- **19 table/action pairs** have two permissive policies: the owner's own and
+  the helper's.
+- **One foreign key has no index:** a document request's fulfilled-document
+  link.
+- **34 unused indexes:** expected on an empty database.
+- None of these matters at this size. Fixing them means editing verified
+  migrations, so it is a deliberate future pass, not a tidy-up.
+
 ### The database checks
 
 - **Not run against the new database, by rule.** The checks
@@ -109,24 +201,6 @@ Supabase stores the text of every migration it runs.
 - **What runs instead:** the read-only measurements above, the comparison
   against the local copy, and Supabase's advisors.
 - **Locally:** all 339 checks passed against the same 27 migrations (run 9B).
-
-### Supabase's advisors, at 0001–0005
-
-- **Missing search_path pins, two functions:** migration 0019 fixes these. It
-  is pending.
-- **`handle_new_user` callable through the API:** this is the trigger that
-  creates a profile for each new account. The advisor reports that signed-out
-  and signed-in callers could invoke it through the API. A trigger function
-  cannot actually run that way (Postgres refuses), so nothing is exposed. Still,
-  it is a one-line tidy-up for a future migration, and the owner's call. It is
-  the same on the existing live project.
-- **The audit log has no policies:** by design. Only the server reads or
-  writes it.
-- **Performance:**
-  - 22 policies call the sign-in check once per row rather than once per
-    query. They live in the verified 0001–0002, so changing them is a
-    deliberate future pass, not a tidy-up.
-  - The unused-index notices are expected on an empty database.
 
 ## (b) Every setting the live site needs
 
@@ -188,21 +262,17 @@ Supabase project → Authentication:
   push to this branch is now a release.**
 - **This run's one push:** a database setup file only, so the site did not
   change.
-- **The risk until the paste is run:** the site's signed-in pages point at a
-  database that has only migrations 0001–0005. Sign-up and the app will fail.
-  The marketing pages do not touch the database.
+- **The database now has every migration,** so nothing on that side stands
+  in the way of sign-up.
+- **The site still needs the Vercel and Supabase settings listed in (b)**
+  before sign-up and the app can work.
 
 ## Left over
 
-- **The owner:** paste the 0006–0027 file into the new project's SQL editor
-  and run it.
-- **Me, after that:**
-  - compare the new database with the local copy, section by section;
-  - check permissions on all 20 tables;
-  - re-run the advisors;
-  - add the results to this report.
-- **The owner:** add the settings above in Vercel and the two settings in
-  Supabase, then redeploy.
+- **The owner:**
+  - add the settings in (b) to Vercel, and the two settings in Supabase;
+  - then redeploy.
 - **The owner's call, any time:**
-  - the `handle_new_user` tidy-up;
-  - the 22 once-per-row policy calls.
+  - the two one-line tidy-ups (the `handle_new_user` call rights, and the
+    `assert_no_price_columns` search path);
+  - the performance pass on the policies.
