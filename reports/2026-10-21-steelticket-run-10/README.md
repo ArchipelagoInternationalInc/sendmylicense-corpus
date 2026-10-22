@@ -81,6 +81,12 @@ Supabase stores the text of every migration it runs.
   statements, so the same would happen to them.
 - **Not worked around:** I did not change the verified files to get past the
   confirmation.
+- **Tried again with the owner approving each prompt (22 October):** the
+  prompt appeared on the owner's screen and was approved. The request still
+  timed out at 60 seconds and nothing reached the database, twice more (six
+  attempts in all). The approval does not get back to the connector in time,
+  so the connector cannot apply 0006–0027 from this session. The SQL-editor
+  paste is the remaining way through.
 
 **What is ready for the owner:**
 
